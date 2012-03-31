@@ -1,0 +1,163 @@
+//|==================================================================================|
+//|      ___           ___           ___           ___           ___       	     |
+//|     /\  \         /\  \         /\  \         /|  |         /\  \      	     |
+//|    |::\  \       /::\  \       /::\  \       |:|  |        /::\  \     	     |
+//|    |:|:\  \     /:/\:\  \     /:/\:\  \      |:|  |       /:/\:\  \    	     |
+//|  __|:|\:\  \   /:/  \:\  \   /:/  \:\  \   __|:|  |      /:/ /::\  \   	     |
+//| /::::|_\:\__\ /:/__/ \:\__\ /:/__/ \:\__\ /\ |:|__|____ /:/_/:/\:\__\  	     |
+//| \:\--\  \/__/ \:\  \ /:/  / \:\  \ /:/  / \:\/:::::/__/ \:\/:/  \/__/  	     |
+//|  \:\  \        \:\  /:/  /   \:\  /:/  /   \::/__/       \::/__/       	     |
+//|   \:\  \        \:\/:/  /     \:\/:/  /     \:\  \        \:\  \       	     |
+//|    \:\__\        \::/  /       \::/  /       \:\__\        \:\__\      	     |
+//|     \/__/         \/__/         \/__/         \/__/         \/__/      	     |
+//| ================================================================================ |
+//| Script Desenvolvido Por Mooka | eAthena | Por Favor, Não Retire Os Creditos.     |
+//| -------------------------------------------------------------------------------- |
+//| ------ Como eu era noob nessa epoca xD -----				     |
+//| v1.0  = Criado. (at year 2006.)		~> Mooka 			     |
+//| v1.1  = Ranking Adicionado.     		~> Mooka 			     |
+//| v1.2  = Novo Sistema De Arena. 		~> Mooka			     |
+//| v1.2a = Sistema de Announce Alterado.  	~> Mooka 		       	     |
+//| v1.2b = Som Monster Kill Adicionado.  	~> Mooka 		       	     |
+//| ================================================================================ |
+prontera.gat,153,184,5	script	PvP Master	802,{
+//| ================================================================================ |
+//|										     |
+if ( $pvp_timer > $time_conf ) set $pvp_timer,0;				  // |	
+if ( $time_info < 0 ) set $time_info,$time_conf;				  // |
+if ( $arena > $amount_arena )  set $arena,1;					  // |
+if ( $test == 0 ) {								  // |
+set $arena,1;									  // |
+set $test,1; 									  // |
+setarray $PvP_Ranking$[0],"-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-";		  // |
+setarray $PvP_Ranking[0],0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0;}                    
+//| ================================================================================ |
+//| Configurações:                                                        	     |
+//|                        						  	     |		  
+set $arena$[0],"guild_vs2-2.gat";// mapa 1. 					     |
+set $arena$[1],"guild_vs3.gat";// mapa 2.					     |
+set $arena$[2],"guild_vs4.gat";// mapa 3.					     |
+set $arena$[3],"guild_vs5.gat";// mapa 4.					     |
+set $arena$[4],"pvp_2vs2.gat"; // mapa 5.					     |
+//| 										     |
+//|~> Nome do npc.								     |
+set .npcname$,"[ ^FF0000 PvP Warper ^000000 ]";				    	  // |
+//| 										     |
+//|~> Usar Sistema De Announce ? 0 = Não, 1 = Sim.				     |
+set $announceinfo,1;								  // |
+//| 										     |
+//|~> Numero de arenas.								     |
+set $amount_arena,2;  								  // |
+//| 										     |
+//|~> Configuração do tempo em que à arena ira mudar.				     |
+set $time_conf,30;								  // |
+//| 										     |
+//|~> Deseja ativar o som Monster Kill ? 0 = não; 1 = sim. ( lembre-se de por o som na pasta data/wav )
+set $sound_on,0;								  // | 
+//| 										     |
+//| Ranking									     |
+//|										     |
+set $max1,10;//	Primeiro Ranking ( 10 primeiros )				     |
+set $max2,20;//	Segundo Ranking ( 11º-20º )					     |
+//| 										     |
+//| ================================================================================ |
+
+beginning:
+
+	mes .npcname$;
+	mes "Há No Memento ^FFA500"+getmapusers($arena$[$arena])+"^000000 Players No PvP.";
+	mes "A Arena Será Trocada Em ^FFA500"+$time_info+"^000000 Minutos!";
+		switch(select("^FF0000PvP ^0000FF["+getmapusers($arena$[$arena])+"]^000000","Não")) {
+
+case 1:
+					killmonsterall $arena$[$arena];
+				warp $arena$[$arena],0,0;
+			end;
+
+case 2:
+		close;
+	}
+
+
+OnWhisperGlobal:
+		if ( ( @whispervar0$ == "|00!warp" ) | ( @whispervar0$ == "!warp" )) { 
+							warp $arena$[$ind_arena],0,0; 
+				end; 
+	 } else { 
+		Dispbottom "Digite ^FF0000!warp^000000 para ir ao pvp.";
+				end;
+	}
+}
+
+-	script	timerpm	-1,{
+OnInit:
+OnTimer60000:
+
+					initnpctimer;
+		set $pvp_timer,$pvp_timer + 1;
+		set $time_info,$time_info - 1;
+			if ( $pvp_timer == $time_conf ) {
+							sleep 1000;
+							MapAnnounce $arena$[$arena],"Mapa do PvP Será Alterado em 3 Segundos!",bc_map,0xFF7F50;
+							sleep 1000;
+							MapAnnounce $arena$[$arena],"Mapa do PvP Será Alterado em 2 Segundos!",bc_map,0xFF7F50;
+							sleep 1000;
+							MapAnnounce $arena$[$arena],"Mapa do PvP Será Alterado em 1 Segundos!",bc_map,0xFF7F50;
+							sleep 1000;
+		set $arena,$arena + 1;
+		set $pvp_timer,0; 
+		set $time_info,$time_conf;
+			if ( $arena > $amount_arena )  set $arena,0;
+		set $ind_arena,0;
+
+loop_arena:
+							mapwarp $arena$[$ind_arena],$arena$[$arena],0,0;
+		set $ind_arena,$ind_arena + 1;
+			if ( $ind_arena != $amount_arena ) goto loop_arena;
+							Announce "Mapa Do PvP Alterado!",bc_all,0xFF7F50;
+	}
+				end;
+}
+
+
+
+
+-	script	OnPCKillEvent	-1,{
+
+		set firstkiller,firstkiller + 1;
+		set PvP_Points,PvP_Points + 1;
+		dispbottom "PvP Points : "+PvP_Points;
+			if ( ( PvP_Points > $PvP_Lider ) & ( $PvP_Lider$ != strcharinfo(0) ) ) {
+								set $PvP_Lider$,strcharinfo(0);
+								set $PvP_Lider,PvP_Points;
+								if ( $announceinfo == 1 ) Announce ""+strcharinfo(0)+" | É o novo Lider Do PvP!",bc_all,0xFF7F50;
+										}
+		if ( $announceinfo == 0 ) end;
+		set sik,sik + 1;
+			if ( sik == 100 ) { set sik2,sik2 + 100; set sik,0; }
+			if ( PvP_Points == 10 ) Announce ""+strcharinfo(0)+" | Matou 10 Players!",bc_all,0xFF7F50;
+			if ( PvP_Points == 25 ) Announce ""+strcharinfo(0)+" | Matou 25 Players!",bc_all,0xFF7F50;
+			if ( PvP_Points == 50 ) Announce ""+strcharinfo(0)+" | Matou 50 Players!",bc_all,0xFF7F50;
+			if ( PvP_Points == 75 ) Announce ""+strcharinfo(0)+" | Matou 75 Players!",bc_all,0xFF7F50;
+			if ( PvP_Points == sik2 ) Announce ""+strcharinfo(0)+" | Matou "+PvP_Points+" Players!",bc_all,0xFF7F50;				
+//			if ( ( PvP_Points == sik2 ) & ( $sound_on == 1 ) ) soundeffectall "monsterkill.wav",0;
+
+
+
+}
+
+guild_vs2-2.gat	mapflag	nosave
+guild_vs2-2.gat	mapflag	noteleport
+guild_vs2-2.gat	mapflag	nomemo
+guild_vs2-2.gat	mapflag	pvp
+guild_vs2-2.gat	mapflag	nopenalty
+guild_vs2-2.gat	mapflag	nobranch
+guild_vs2-2.gat	mapflag pvp_noguild
+guild_vs3.gat	mapflag	nosave
+guild_vs3.gat	mapflag	noteleport
+guild_vs3.gat	mapflag	nomemo
+guild_vs3.gat	mapflag	pvp
+guild_vs3.gat	mapflag	nopenalty
+guild_vs3.gat	mapflag	nobranch
+guild_vs3.gat	mapflag pvp_noguild
+guild_vs3.gat	mapflag	water

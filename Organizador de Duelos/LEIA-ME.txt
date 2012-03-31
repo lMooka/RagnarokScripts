@@ -1,0 +1,35 @@
+Script Desevolvido por Mooka.
+Por favor, NÃO RETIRE OS CRÉDITOS.
+Peço que não cópie/modifique este script sem a minha autorização,
+como já aconteceu várias vezes com outros scripts criados por mim.
+Isso só irá prejudicar outras pessoas, pois cada vez que vejo isso 
+perco a vontade de compartilhar meus scripts.
+
+Obrigado,
+Mooka.
+
+----------
+
+
+-- Adicionando este script:
+
+Vá em npc/scripts_custom.conf
+
+- Adicione ao final do arquivo:
+
+npc: npc/partyduel/PartyDuel.txt
+
+Salve e feche.
+
+--
+
+Certifique-se de que a pasta esteja nesse diretorio, caso contrario você terá problemas.*
+
+* Caso não esteja, você terá que alterar o diretorio no arquivo PartyDuel.txt .
+
+[=========================]
+npc: npc/../PartyDuel.txt
+npc: npc/../5vs5.txt
+npc: npc/../4vs4.txt
+npc: npc/../3vs3.txt
+[=========================]

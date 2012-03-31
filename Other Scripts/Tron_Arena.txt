@@ -1,0 +1,666 @@
+////////////////////////////////////////////////////////////////
+//===== eAthena Script =======================================// 
+//= Ragnarok meet Tron                                        //
+//===== By: ==================================================//
+//= Van                                                       //
+//= Shadow (Versao em Portugues)                              //
+//===== Current Version: =====================================//
+//= 1.0                                                       //
+//===== Description: =========================================//
+//= Motorradspiel von Tron im RO :D                           //
+//============================================================//
+////////////////////////////////////////////////////////////////
+
+
+//Anmelder
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Mapflags
+guild_vs2-1	mapflag	pvp	off
+
+prontera,140,225,5	script	Tron Arena	769,{
+
+set @usetron,0;
+if (##readtronrules==0) 
+	{
+		mes "[Tron Warperin]";
+		mes "Por favor, é recomendavel ler as instruções antes, você gostaria?";
+		menu "Sim, Por favor.",L_howwork,"Não, Quero ir logo!",L_startthewarper;
+	}
+
+L_startthewarper:
+
+mes "[Tron Warperin]";
+mes "Olá aventureiro!";
+mes "Tem atualmente "+getmapusers("guild_vs2-1")+" jogadores na arena";
+mes "Você quer participar?";
+
+menu "Sim, por favor.",-,"O que é isso?",L_woot,"Quantos pontos eu tenho?",L_howmanyp,"Agora nao, me desculpe.",L_goout;
+	warp "guild_vs2-1",49,46;
+	end;
+
+L_goout:
+	next;
+	mes "[Tron Warperin]";
+	mes "Como quiser, mas volte denovo mais tarde.";
+	close;
+
+L_howmanyp:
+	next;
+	mes "[Tron Warperin]";
+	mes "Você têm "+tronpoints+" Tronpoints";
+	next;
+	goto L_startthewarper;
+	
+L_woot:
+	if (##readtronrules==0) {set ##readtronrules,1;}
+	menu "Como funciona?",L_howwork,"Que tipo de barreiras estão disponiveis?",L_whatwalls,"Ok, eu entendi tudo.",L_startthewarper;
+	
+L_howwork:
+	next;
+	mes "[Tron Warperin]";
+	mes "Funciona assim:";
+	next;
+	mes "[Tron Warperin]";
+	mes "Você escolhe um tipo de barreira (quais barreiras você têm disponivel você checa em 'Que tipo de barreiras estão disponiveis?').";
+	next;
+	mes "[Tron Warperin]";
+	mes "Se você andar, voce vai construir uma barreira atraz de você.";
+	next;
+	mes "[Tron Warperin]";
+	mes "Não esqueça que voce morre se ficar parado no mesmo local por mais de 2 segundos.";
+	next;
+	mes "[Tron Warperin]";
+	mes "Você tem que fazer seu oponente andar dentro da sua barreira.";
+	next;
+	mes "[Tron Warperin]";
+	mes "Se o seu oponente andar dentro da sua barreira, o efeito dela vai começar e seu oponente pode morrer.";
+	next;
+	mes "[Tron Warperin]";
+	mes "Se seu oponente morrer, então você venceu!";
+	next;
+	mes "[Tron Warperin]";
+	mes "Mas se ambos se afastarem muito, ambos irão morrer.";
+	next;
+	mes "[Tron Warperin]";
+	mes "No final, o vencedor irá ganhar 5 Tronpoints.";
+	next;
+	mes "[Tron Warperin]";
+	mes "Feito por Van";
+	mes "www.gdro4u.de";
+	next;
+	if (##readtronrules==0) goto L_whatwalls;
+	next;
+	goto L_woot;
+
+L_whatwalls:
+	next;
+	mes "[Tron Warperin]";
+	mes "Esses são os tipos de barreiras que você pode escolher:";
+	next;
+	mes "[Tron Warperin]";
+	mes "Nome: Barreira de Veneno";
+	mes "Distância: 100 Passos";
+	mes "Tronpoints Necessários: Nenhum";
+	mes "Custo em Pontos: Nenhum";
+	mes "Efeito: 1. 'coma' | 2. Morte";
+	next;
+	mes "[Tron Warperin]";
+	mes "Nome: Barreira de Nevoa";
+	mes "Distância: 100 Passos";
+	mes "Tronpoints Necessários: 20";
+	mes "Custo em Pontos: 2";
+	mes "Efeito: Stone Curse / Petrificação";
+	next;
+	mes "[Tron Warperin]";
+	mes "Nome: Barreira de Gelo (ULTIMATE)";
+	mes "Distância: 100 Passos";
+	mes "Tronpoints Necessários: 50";
+	mes "Custo em Pontos: 4";
+	mes "Efeito: Frozen / Congelar";
+	next;
+	mes "[Tron Warperin]";
+	mes "Mais barreiras estão em planejamento.";
+	if (##readtronrules==0) goto L_madeby;
+	next;
+	goto woot;
+	
+L_madeby:
+	next;
+	mes "[Tron Warper]";
+	mes "Feito por Van.";
+	next;
+	goto L_startthewarper;
+
+OnWhisperGlobal:
+OnInit:
+	setmapflagnosave "guild_vs2-1","lighthalzen",158,92;
+	setmapflag "guild_vs2-1",mf_noskill;
+//	setmapflag "guild_vs2-1",mf_nopvp; // there is no mf_nopvp yet [ shadow ]
+	set $@troncountdown,0;
+	set $@firstplayertron,0;
+	set $@secondplayertron,0;
+	end;
+
+Ontroncountdownloop:		
+	if ($@firstplayerready==1 && $@secondplayerready==1)
+		{
+			sleep2 1000;
+				mapannounce "guild_vs2-1","Preparar.",17;
+			sleep2 1000; 
+				mapannounce "guild_vs2-1","Aprontar.",17;
+			sleep2 1000;
+ 				mapannounce "guild_vs2-1","GO!",17;
+			if ($@firstplayerready==1 && $@secondplayerready==1) {set $@troncountdown,1;}
+			end;
+		}
+	end;
+	
+}
+
+
+//First Player
+/////////////////////////////////////////////////////////////////////////////////////
+
+guild_vs2-1,48,49,6	script	Player 1	858,{
+
+if ($@firstplayertron==1 || @usetron==1) end;
+set $@firstplayertron,1;
+set @usetron,1;
+set @clearfirstplayerarray,100;
+
+L_choosewall:
+	mes "Tudo vai ser configurado agora!";
+	mes "Qual barreira você quer?";
+	mes "";
+	mes "Cancelar = 0";
+	mes "Barreira de Veneno = 1";
+	if (tronpoints>=20) mes "Barreira de Névoa = 2";
+	if (tronpoints>=50) mes "Barreira de Gelo = 3";
+	//if (tronpoints>=10) mes "Barreira de Sombras = 4";
+	set @choosewall,0;
+	input @choosewall;
+	if (@choosewall==0) {set $@firstplayertron,0; set @usetron,0; close;}
+	if (@choosewall==1) goto L_poisonwall;
+	if (@choosewall==2) goto L_fogwall;
+	if (@choosewall==3) goto L_icewall;
+	//if (@choosewall==4) goto L_shadowwall;
+L_wrongwall:
+	mes "Desculpe, essa barreira não está disponível para você no momento.";
+	next;
+	goto L_choosewall;
+L_icewall:
+	if (tronpoints<50) goto L_wrongwall;
+	set tronpoints,tronpoints-4;
+	set $@firstplayerwall,1;
+	set $@firstplayerwalleffect,74;
+	goto L_cleararrayplayerone;
+L_poisonwall:
+	set $@firstplayerwall,185;
+	set $@firstplayerwalleffect,171;
+	goto L_cleararrayplayerone;
+L_fogwall:
+	if (tronpoints<20) goto L_wrongwall;
+	set tronpoints,tronpoints-2;
+	set $@firstplayerwall,0;
+	set $@firstplayerwalleffect,137;
+	goto L_cleararrayplayerone;
+L_shadowwall:
+	if (tronpoints<10) goto L_wrongwall;
+	set $@firstplayerwall,185;
+	set $@firstplayerwalleffect,405;
+	goto L_cleararrayplayerone;
+
+L_cleararrayplayerone:
+	if ($@firstplayeraktivcellsonx[0]==0 && $@firstplayeraktivcellsony[0]==0)
+		{
+		set $@firstplayersamecellx[1],0;
+		set $@firstplayersamecelly[1],0;
+		set $@firstplayersamecellx[2],0;
+		set $@firstplayersamecelly[2],0;
+		set $@firstplayersamecellx[3],0;
+		set $@firstplayersamecelly[3],0;
+		set $@firstplayeffectcount[1],0;
+		set $@firstplayeffectcount[2],0;
+		goto L_setupfirstplayer;
+		}
+	set $@firstplayeraktivcellsonx[@clearfirstplayerarray],0;
+	set $@firstplayeraktivcellsony[@clearfirstplayerarray],0;
+	set @clearfirstplayerarray,@clearfirstplayerarray-1;
+	goto L_cleararrayplayerone;
+
+L_setupfirstplayer:
+	set $@firstplayername$,strcharinfo(0);
+	set $@firstplayeraktivcellsonx,0;
+	set $@firstplayeraktivcellsony,0;
+	set $@firstplayerarray,0;
+	set $@firstplayercheckarray,0;
+	set $@firstplayersamecellx,0;
+	set $@firstplayersamecelly,0;
+	set $@firstplayersamecellcount,0;
+	set $@firstplayeffectcount,0;
+	set @selforenemy,0;
+	set $@secondplayerpwnd,0;
+	set $@firstplayerpwnd,0;
+	set $@firstplayermapx,0;
+	set $@firstplayermapy,0;
+	set $@nowin,0;
+	
+mes "Tudo está configurado agora...";
+close2;
+set $@firstplayerready,1;
+donpcevent "Tron Warperin::Ontroncountdownloop";
+attachrid(getcharid(3,$@firstplayername$));
+
+	while($@firstplayerready==1)
+		{
+		if (getmapxy($@firstplayermapnamecheck$,$@firstplayermapxcheck,$@firstplayermapycheck,0,$@firstplayername$)!=0) goto L_stopall;
+		if ($@firstplayermapnamecheck$!="guild_vs2-1") goto L_bothloose;
+
+		attachrid(getcharid(3,$@firstplayername$));
+		initnpctimer;
+		sc_start 224,200,0; //Mit 64 probieren
+		end;
+		OnTimer100: 
+			attachrid(getcharid(3,$@firstplayername$));
+			stopnpctimer;
+			setnpctimer 0;
+
+			L_checkfirstplayer:
+			attachrid(getcharid(3,$@firstplayername$));
+				if ($@secondplayerready!=1  && $@nowin==0) goto L_reloop;
+				if ($@secondplayerpwnd==1) goto L_laststand;
+				getmapxy @firstplayermapname$,$@firstplayermapx,$@firstplayermapy,0,$@firstplayername$;
+				
+				if ($@nowin==1) goto L_bothloose;
+				if ($@firstplayercheckarray>0)
+					{
+						if (($@firstplayermapx-$@secondplayermapx)<-15 || ($@firstplayermapx-$@secondplayermapx)>15) goto L_bothloose;
+						if (($@firstplayermapy-$@secondplayermapy)<-15 || ($@firstplayermapy-$@secondplayermapy)>15) goto L_bothloose;
+					}
+				
+				if ($@troncountdown==0) goto L_reloop;
+
+				set $@firstplayerarray,$@firstplayercheckarray;
+				set $@secondplayerarray,$@secondplayercheckarray;
+
+			L_secondplayeractivcell:
+				attachrid(getcharid(3,$@firstplayername$));
+				if ($@secondplayeraktivcellsonx[$@secondplayerarray]==$@firstplayermapx && $@secondplayeraktivcellsony[$@secondplayerarray]==$@firstplayermapy) {set @selforenemy,2; goto L_firstplayertouch;}
+				if ($@secondplayerarray==0) goto L_firstplayeractivcell;
+				set $@secondplayerarray,$@secondplayerarray-1;
+				goto L_secondplayeractivcell;
+				
+			L_firstplayeractivcell:
+				attachrid(getcharid(3,$@firstplayername$));
+				if ($@firstplayeraktivcellsonx[$@firstplayerarray]==$@firstplayermapx && $@firstplayeraktivcellsony[$@firstplayerarray]==$@firstplayermapy) {set @selforenemy,1; goto L_firstplayertouch;}
+				if ($@firstplayerarray==0) goto L_firstplayermakewall;
+				set $@firstplayerarray,$@firstplayerarray-1;
+				goto L_firstplayeractivcell;
+
+			L_firstplayertouch:
+				attachrid(getcharid(3,$@firstplayername$));
+				if ($@firstplayeraktivcellsonx[$@firstplayerarray]==$@firstplayersamecellx[1] && $@firstplayeraktivcellsony[$@firstplayerarray]==$@firstplayersamecelly[1] && $@firstplayersamecellcount!=20) goto L_firstplayertouchself;
+				if ($@firstplayersamecellcount==20) {atcommand strcharinfo(0)+"@die"; goto L_gameover;}
+				if (@selforenemy==1) 
+					{
+						if ($@firstplayerwall==185)
+							{
+								if ($@firstplayeffectcount[1]==1)
+									{
+										if ($@firstplayersamecellx[2]==$@firstplayermapx && $@firstplayersamecelly[2]==$@firstplayermapy) goto L_firstplayertouchself;
+										atcommand strcharinfo(0)+"@die";
+										goto L_gameover;
+									}
+								if ($@firstplayeffectcount[1]==0)
+									{
+										set $@firstplayeffectcount[1],1; 
+										set $@firstplayersamecellx[2],$@firstplayermapx; 
+										set $@firstplayersamecelly[2],$@firstplayermapy;
+										goto L_firstplayermakewall;
+									}
+							}
+						sc_start $@firstplayerwall,100000,0; sc_start $@firstplayerwall,100000,0;
+					}
+				if (@selforenemy==2) 
+					{
+						if ($@secondplayerwall==185)
+							{
+								if ($@firstplayeffectcount[2]==1) 
+									{
+										if ($@firstplayersamecellx[3]==$@firstplayermapx && $@firstplayersamecelly[3]==$@firstplayermapy) goto L_firstplayertouchself;
+										atcommand strcharinfo(0)+"@die";
+										goto L_gameover;
+									}
+								if ($@firstplayeffectcount[2]==0) 
+									{
+										set $@firstplayeffectcount[2],1; 
+										set $@firstplayersamecellx[3],$@firstplayermapx; 
+										set $@firstplayersamecelly[3],$@firstplayermapy;
+										goto L_firstplayermakewall;
+									}
+							}
+						sc_start $@secondplayerwall,100000,0; sc_start $@secondplayerwall,100000,0;
+					}
+				set @selforenemy,0;
+				goto L_firstplayertouchself;
+		
+			L_firstplayermakewall:
+				attachrid(getcharid(3,$@firstplayername$));
+				set $@firstplayeraktivcellsonx[$@firstplayercheckarray],$@firstplayermapx;
+				set $@firstplayeraktivcellsony[$@firstplayercheckarray],$@firstplayermapy;
+				specialeffect2 $@firstplayerwalleffect;
+				set $@firstplayersamecellx[1],$@firstplayeraktivcellsonx[$@firstplayercheckarray];
+				set $@firstplayersamecelly[1],$@firstplayeraktivcellsony[$@firstplayercheckarray];
+				if ($@firstplayercheckarray==100) set $@firstplayercheckarray,0;
+				if ($@firstplayerwalleffect==132 && $@firstplayercheckarray==20) {set $@firstplayercheckarray,0;}
+				set $@firstplayercheckarray,$@firstplayercheckarray+1;
+				set $@firstplayersamecellcount,0;
+				goto L_reloop;
+
+			L_firstplayertouchself:
+				attachrid(getcharid(3,$@firstplayername$));
+				set $@firstplayersamecellcount,$@firstplayersamecellcount+1;
+
+			L_reloop:
+			
+		}
+end;
+
+L_bothloose:
+	attachrid(getcharid(3,$@firstplayername$));
+	set $@nowin,1;
+	set $@firstplayerready,0;
+	set $@secondplayerready,0;
+	if (@choosewall==2) {set tronpoints,tronpoints+2;}
+	if (@choosewall==3) {set tronpoints,tronpoints+4;}
+	dispbottom "--------------------------------------------------"; 
+	dispbottom "Distância máxima alcançada."; 
+	dispbottom "--------------------------------------------------"; 
+	goto L_gameover;
+
+L_laststand:
+	attachrid(getcharid(3,$@firstplayername$));
+	set $@firstplayerready,0;
+	set $@secondplayerready,0;
+	set tronpoints,tronpoints+5;
+	dispbottom "--------------------------------------------------"; 
+	dispbottom "Parabêns."; 
+	dispbottom "Você venceu essa partida."; 
+	dispbottom "Você ganhou 5 Tronpoints.";
+	dispbottom "Você ja têm: "+tronpoints;
+	dispbottom "--------------------------------------------------"; 
+	goto L_gameover;
+		
+L_gameover:
+	attachrid(getcharid(3,$@firstplayername$));
+	set $@firstplayertron,0;
+	if ($@nowin==0 && $@secondplayerready==1) {set $@firstplayerpwnd,1;}
+	set @usetron,0;
+	warp "guild_vs2-1",49,46;
+	set $@troncountdown,0;
+	end;
+
+L_stopall:
+	set $@firstplayername$,"";
+	set $@firstplayerready,0;
+	set $@firstplayertron,0;
+	set $@nowin,1;
+	set $@troncountdown,0;
+	end;
+	
+}
+
+
+//Second Player
+/////////////////////////////////////////////////////////////////////////////////////
+
+guild_vs2-1,51,49,3	script	Player 2	858,{
+
+if ($@secondplayertron==1 || @usetron==1) end;
+set $@secondplayertron,1;
+set @usetron,1;
+set @clearsecondplayerarray,100;
+
+L_choosewall:
+	mes "Tudo vai ser configurado agora!";
+	mes "Qual barreira você quer?";
+	mes "";
+	mes "Cancelar = 0";
+	mes "Barreira de Veneno = 1";
+	if (tronpoints>=20) mes "Barreira de Névoa = 2";
+	if (tronpoints>=50) mes "Barreira de Gelo = 3";
+	//if (tronpoints>=10) mes "Barreira de Sombras = 4";
+	set @choosewall,0;
+	input @choosewall;
+	if (@choosewall==0) {set $@secondplayertron,0; set @usetron,0; close;}
+	if (@choosewall==1) goto L_poisonwall;
+	if (@choosewall==2) goto L_fogwall;
+	if (@choosewall==3) goto L_icewall;
+	//if (@choosewall==4) goto L_shadowwall;
+L_wrongwall:
+	mes "Desculpe, essa barreira não está disponível para você no momento.";
+	next;
+	goto L_choosewall;
+L_icewall:	
+	if (tronpoints<50) goto L_wrongwall;
+	set tronpoints,tronpoints-4;
+	set $@secondplayerwall,1;
+	set $@secondplayerwalleffect,74;
+	goto L_cleararrayplayertwo;
+L_poisonwall:
+	set $@secondplayerwall,185;
+	set $@secondplayerwalleffect,171;
+	goto L_cleararrayplayertwo;
+L_fogwall:
+	if (tronpoints<20) goto L_wrongwall;
+	set tronpoints,tronpoints-2;
+	set $@secondplayerwall,0;
+	set $@secondplayerwalleffect,137;
+	goto L_cleararrayplayertwo;
+L_shadowwall:
+	if (tronpoints<10) goto L_wrongwall;
+	set $@secondplayerwall,185;
+	set $@secondplayerwalleffect,405;
+	goto L_cleararrayplayertwo;
+
+L_cleararrayplayertwo:
+	if ($@secondplayeraktivcellsonx[0]==0 && $@secondplayeraktivcellsony[0]==0)
+		{
+		set $@secondplayersamecellx[1],0;
+		set $@secondplayersamecelly[1],0;
+		set $@secondplayersamecellx[2],0;
+		set $@secondplayersamecelly[2],0;
+		set $@secondplayersamecellx[3],0;
+		set $@secondplayersamecelly[3],0;
+		set $@secondplayeffectcount[1],0;
+		set $@secondplayeffectcount[2],0;
+		goto L_setupsecondplayer;
+		}
+	set $@secondplayeraktivcellsonx[@clearsecondplayerarray],0;
+	set $@secondplayeraktivcellsony[@clearsecondplayerarray],0;
+	set @clearsecondplayerarray,@clearsecondplayerarray-1;
+	goto L_cleararrayplayertwo;
+
+L_setupsecondplayer:
+	set $@secondplayername$,strcharinfo(0);
+	set $@secondplayeraktivcellsonx,0;
+	set $@secondplayeraktivcellsony,0;
+	set $@secondplayerarray,0;
+	set $@secondplayercheckarray,0;
+	set $@secondplayersamecellx,0;
+	set $@secondplayersamecelly,0;
+	set $@secondplayersamecellcount,0;
+	set $@secondplayeffectcount,0;
+	set @selforenemy,0;
+	set $@secondplayerpwnd,0;
+	set $@firstplayerpwnd,0;
+	set $@secondplayermapx,0;
+	set $@secondplayermapy,0;
+	set $@nowin,0;
+
+mes "Tudo está configurado agora...";
+close2;
+set $@secondplayerready,1;
+donpcevent "Tron Warperin::Ontroncountdownloop";
+attachrid(getcharid(3,$@secondplayername$));
+
+	while($@secondplayerready==1)
+		{
+		if (getmapxy($@secondplayermapnamecheck$,$@secondplayermapxcheck,$@secondplayermapycheck,0,$@secondplayername$)!=0) goto L_stopall;
+		if ($@secondplayermapnamecheck$!="guild_vs2-1") goto L_bothloose;
+		
+		attachrid(getcharid(3,$@secondplayername$));
+		initnpctimer;
+		sc_start 224,200,0; //Mit 64 probieren
+		end;
+		OnTimer100: 
+
+			attachrid(getcharid(3,$@secondplayername$));
+			stopnpctimer;
+			setnpctimer 0;
+	
+			L_checksecondplayer:
+			attachrid(getcharid(3,$@secondplayername$));
+				if ($@firstplayerpwnd==1) goto L_laststand;
+				if ($@firstplayerready!=1 && $@nowin==0) goto L_reloop;
+				if (getmapxy($@secondplayermapnamecheck,$@secondplayermapxcheck,$@secondplayermapycheck,0,$@secondplayername$)!=0) goto L_stopall;
+				getmapxy @secondplayermapname$,$@secondplayermapx,$@secondplayermapy,0,$@secondplayername$;
+		
+				if ($@nowin==1) goto L_bothloose;
+				if ($@secondplayercheckarray>0)
+					{
+						if (($@firstplayermapx-$@secondplayermapx)<-15 || ($@firstplayermapx-$@secondplayermapx)>15) goto L_bothloose;
+						if (($@firstplayermapy-$@secondplayermapy)<-15 || ($@firstplayermapy-$@secondplayermapy)>15) goto L_bothloose;
+					}
+
+				if ($@troncountdown==0) goto L_reloop;
+
+				set $@secondplayerarray,$@secondplayercheckarray;
+				set $@firstplayerarray,$@firstplayercheckarray;
+
+			L_firstplayeractivcell:
+				attachrid(getcharid(3,$@secondplayername$));
+				if ($@firstplayeraktivcellsonx[$@firstplayerarray]==$@secondplayermapx && $@firstplayeraktivcellsony[$@firstplayerarray]==$@secondplayermapy) {set @selforenemy,2; goto L_secondplayertouch;}
+				if ($@firstplayerarray==0) goto L_secondplayeractivcell;
+				set $@firstplayerarray,$@firstplayerarray-1;
+				goto L_firstplayeractivcell;
+				
+			L_secondplayeractivcell:
+				attachrid(getcharid(3,$@secondplayername$));
+				if ($@secondplayeraktivcellsonx[$@secondplayerarray]==$@secondplayermapx && $@secondplayeraktivcellsony[$@secondplayerarray]==$@secondplayermapy) {set @selforenemy,1; goto L_secondplayertouch;}
+				if ($@secondplayerarray==0) goto L_secondplayermakewall;
+				set $@secondplayerarray,$@secondplayerarray-1;
+				goto L_secondplayeractivcell;
+
+			L_secondplayertouch:
+				attachrid(getcharid(3,$@secondplayername$));
+				if ($@secondplayeraktivcellsonx[$@secondplayerarray]==$@secondplayersamecellx[1] && $@secondplayeraktivcellsony[$@secondplayerarray]==$@secondplayersamecelly[1] && $@secondplayersamecellcount!=20) goto L_secondplayertouchself;
+				if ($@secondplayersamecellcount==20) {atcommand strcharinfo(0)+"@die"; goto L_gameover;}
+				if (@selforenemy==1)
+					{
+						if ($@secondplayerwall==185)
+							{
+								if ($@secondplayeffectcount[1]==1)
+									{
+										if ($@secondplayersamecellx[2]==$@secondplayermapx && $@secondplayersamecelly[2]==$@secondplayermapy) goto L_secondplayertouchself;
+										atcommand strcharinfo(0)+"@die";
+										goto L_gameover;
+									}
+								if ($@secondplayeffectcount[1]==0)
+									{
+										set $@secondplayeffectcount[1],1; 
+										set $@secondplayersamecellx[2],$@secondplayermapx; 
+										set $@secondplayersamecelly[2],$@secondplayermapy;
+										goto L_secondplayermakewall;
+									}
+							}
+						sc_start $@secondplayerwall,100000,0; sc_start $@secondplayerwall,100000,0;
+					}
+				if (@selforenemy==2) 
+					{
+						if ($@firstplayerwall==185)
+							{
+								if ($@secondplayeffectcount[2]==1)
+									{
+										if ($@secondplayersamecellx[3]==$@secondplayermapx && $@secondplayersamecelly[3]==$@secondplayermapy) goto L_secondplayertouchself;
+										atcommand strcharinfo(0)+"@die";
+										goto L_gameover;
+									}
+								if ($@secondplayeffectcount[2]==0)
+									{
+										set $@secondplayeffectcount[2],1; 
+										set $@secondplayersamecellx[3],$@secondplayermapx; 
+										set $@secondplayersamecelly[3],$@secondplayermapy;
+										goto L_secondplayermakewall;
+									}
+							}
+						sc_start $@firstplayerwall,100000,0; sc_start $@firstplayerwall,100000,0;
+					}
+				set @selforenemy,0;
+				goto L_secondplayertouchself;
+		
+			L_secondplayermakewall:
+				attachrid(getcharid(3,$@secondplayername$));
+				set $@secondplayeraktivcellsonx[$@secondplayercheckarray],$@secondplayermapx;
+				set $@secondplayeraktivcellsony[$@secondplayercheckarray],$@secondplayermapy;
+				specialeffect2 $@secondplayerwalleffect;
+				set $@secondplayersamecellx[1],$@secondplayeraktivcellsonx[$@secondplayercheckarray];
+				set $@secondplayersamecelly[1],$@secondplayeraktivcellsony[$@secondplayercheckarray];
+				if ($@secondplayercheckarray==100) {set $@secondplayercheckarray,0;}
+				if ($@secondplayerwalleffect==132 && $@secondplayercheckarray==20) set $@secondplayercheckarray,0;
+				set $@secondplayercheckarray,$@secondplayercheckarray+1;
+				set $@secondplayersamecellcount,0;
+				goto L_reloop;
+
+			L_secondplayertouchself:
+				attachrid(getcharid(3,$@secondplayername$));
+				set $@secondplayersamecellcount,$@secondplayersamecellcount+1;
+
+			L_reloop:
+			
+		}
+end;
+
+L_bothloose:
+	attachrid(getcharid(3,$@secondplayername$));
+	set $@nowin,1;
+	set $@firstplayerready,0;
+	set $@secondplayerready,0;
+	if (@choosewall==2) {set tronpoints,tronpoints+2;}
+	if (@choosewall==3) {set tronpoints,tronpoints+4;}
+	dispbottom "-------------------------------------------------"; 
+	dispbottom "Distância máxima alcançada."; 
+	dispbottom "-------------------------------------------------"; 
+	goto L_gameover;
+
+L_laststand:
+	attachrid(getcharid(3,$@secondplayername$));
+	set $@firstplayerready,0;
+	set $@secondplayerready,0;
+	set tronpoints,tronpoints+5;
+	dispbottom "-------------------------------------------------"; 
+	dispbottom "Parabêns."; 
+	dispbottom "Você venceu essa partida."; 
+	dispbottom "Você ganhou 5 Tronpoints.";
+	dispbottom "Você ja têm: "+tronpoints;
+	dispbottom "-------------------------------------------------";
+	goto L_gameover;
+		
+L_gameover:
+	attachrid(getcharid(3,$@secondplayername$));
+	set $@secondplayertron,0;
+	if ($@nowin==0 && $@firstplayerready==1) {set $@secondplayerpwnd,1;}
+	set @usetron,0;
+	warp "guild_vs2-1",49,46;
+	set $@troncountdown,0;
+	end;
+
+L_stopall:
+	set $@secondplayername$,"";
+	set $@secondplayerready,0;
+	set $@secondplayertron,0;
+	set $@nowin,1;
+	set $@troncountdown,0;
+	end;
+
+}

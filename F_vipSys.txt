@@ -1,0 +1,79 @@
+//|==================================================================================|
+//|	      ___           ___           ___           ___           ___            |
+//|	     /\  \         /\  \         /\  \         /|  |         /\  \           |
+//|	    |::\  \       /::\  \       /::\  \       |:|  |        /::\  \          |
+//|	    |:|:\  \     /:/\:\  \     /:/\:\  \      |:|  |       /:/\:\  \         |
+//|	  __|:|\:\  \   /:/  \:\  \   /:/  \:\  \   __|:|  |      /:/ /::\  \        |
+//|	 /::::|_\:\__\ /:/__/ \:\__\ /:/__/ \:\__\ /\ |:|__|____ /:/_/:/\:\__\       |
+//|	 \:\--\  \/__/ \:\  \ /:/  / \:\  \ /:/  / \:\/:::::/__/ \:\/:/  \/__/       |
+//|	  \:\  \        \:\  /:/  /   \:\  /:/  /   \::/__/       \::/__/            |
+//|	   \:\  \        \:\/:/  /     \:\/:/  /     \:\  \        \:\  \            |
+//|	    \:\__\        \::/  /       \::/  /       \:\__\        \:\__\           |
+//|	     \/__/         \/__/         \/__/         \/__/         \/__/           |
+//| ================================================================================ |
+//|   Script Desenvolvido Por Mooka | eAthena | Por Favor, Não Retire Os Créditos.   |
+//| ================================================================================ |
+/*
+ _____callfunc("F_vipSys",TYPE{,account_id,{days{,type2{,viplevel(default 1)}}}})          {opcional}
+
+
+ _TYPE
+	_0 - Checar dia de expiração do VIP
+	_1 - Adicionar VIP
+		_TYPE2 : Sobrepor o valor do VIP (Use 1 para ativar esta opção)
+	_2 - Retorna dias restantes de uma conta VIP, exemplo:
+		callfunc("F_vipSys",1,2000000,45);
+		mes callfunc("F_vipSys",2,2000000); RETORNA 45
+			
+ _DIAS
+	DEVE SER INSERIDO EM DIAS, EXEMPLO:
+		- callfunc("F_vipSys",1,2000000,45) => 45 dias vip
+
+ _VALORES DE RETORNO
+	TYPE 0 - Número de VIPs expirados.
+	TYPE 1 - Retorna 0.
+	TYPE 2 - Retorna dias VIPs restantes.
+
+ _TABELA
+	ALTER TABLE `login` ADD `vipExpire` BIGINT(14) UNSIGNED NOT NULL DEFAULT '0', ADD `vipDays` INT(4) UNSIGNED NOT NULL DEFAULT '0';
+*/
+
+function	script	F_vipSys	{
+
+
+	switch(getarg(0))
+	{
+case 0:
+	query_sql("select account_id from login where vipExpire<=CURRENT_TIMESTAMP()+0 && vipExpire!=0",.@delAidVip);
+
+	for(set .@i,0;getarraysize(.@delAidVip);set .@i,.@i+1)
+	{
+	query_sql("update login set level=0,vipExpire=0,vipDays=0 where account_id="+.@delAidVip[.@i]);
+	set .@delAidVip[.@i],0;
+	debugmes "[vipSys]: VIP Account '"+.@delAidVip[.@i]+"' has expired.";
+	} return .@i;
+
+case 1:
+	setarray .@numberDaysMonth[1],31,28,31,30,31,30,31,31,30,31,30,31;
+	set .@day,getarg(2);
+		while(.@day > .@numberDaysMonth[(gettime(6)+.@month)])
+		{
+		set .@day,.@day-.@numberDaysMonth[gettime(6)];
+		set .@month,.@month+1;
+			if (.@month==13)
+			{
+			set .@month,1;
+			set .@year,.@year+1;
+			}
+		}
+	if(getarg(3,0))
+	query_sql("update login set level="+getarg(4,1)+",vipExpire=((CURRENT_TIMESTAMP()+(("+.@year+"*100000000000)+("+.@month+"*1000000000)+("+.@day+"*10000000))-vipExpire)*10000000000000) where account_id="+getarg(1)); else
+	query_sql("update login set level="+getarg(4,1)+",vipExpire=CURRENT_TIMESTAMP()+(("+.@year+"*100000000000)+("+.@month+"*1000000000)+("+.@day+"*10000000)) where account_id="+getarg(1));
+	return 0;
+
+case 2:
+	query_sql("update login set vipDays=TO_DAYS(vipExpire)-TO_DAYS(CURRENT_TIMESTAMP()) where account_id="+getarg(1));
+	query_sql("select vipDays from login where account_id="+getarg(1),@vip);
+	return @vip;
+	}
+}

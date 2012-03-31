@@ -1,0 +1,106 @@
+// Script Desenvovido por Sakura(http://www.eathena.ws/board/View-Member-Profile-m133327.html)
+// Script Traduzido Por Mooka, Membros da Staff WodRO
+prontera,142,227,3	script	 Poring Ball#hj1	911,{
+	callfunc "F_Game_Hoster";
+	close;
+}
+
+function	script	F_Game_Hoster	{
+//	cutin "god_kukur02",2;
+	mes "^BF0073[Poring Ball]^000000";
+	mes "Olá, Posso informar-lhe sobre a zona Poring Ball.";
+	mes "Também posso lhe enviar para a área de jogos.";
+
+OnMenu:
+	next;
+	menu "Informação sobre Poring Ball", OnPoringBall,"Cancel",-;
+	close2;
+//	cutin "",255;
+	end;
+
+OnPoringBall:
+//	cutin "",255;
+//	cutin "god_kukur01",2;
+	mes "^BF0073[Poring Ball]^000000";
+
+	if ($@state_match>=2)
+		mes "Não existem partidas em andamento. ["+getmapusers("ball2")+" Players]";
+	else
+		mes "Não existem partidas em andamento.";
+		mes "Existem "+getareausers("quiz_02",321,333,378,394)+" jogadores na sala de espera.";
+		next;
+
+	set @accessPoring, 1;
+
+	if (@accessPoring==1) {
+		menu "Jogar Poring Ball",-,"Cancelar",OnCancel;
+//		cutin "",255;
+//		cutin "god_kukur02",2;
+		mes "^BF0073[Poring Ball]^000000";
+		mes "Para voltar aqui, você deve falar com o Hoster do Jogo na Sala da Espera.";
+		close2;
+//		cutin "",255;
+		warp "quiz_02",350,374;
+	} else  {
+		mes "^BF0073[Poring Ball]^000000";
+		mes "Poring Ball não está aberto para o público.";
+		goto OnMenu;
+	}
+	close;
+
+OnCancel:
+	cutin "",255;
+	cutin "god_kukur02",2;
+	mes "^BF0073[Hoster do Jogo]^000000";
+	mes "Vejo você em breve!";
+	close2;
+	cutin "",255;
+	end;
+}
+
+
+quiz_02,335,384,5	script	 Poring Ball#hjPb1	69,{
+
+	cutin "god_kukur01",2;
+	mes "^BF0073[Hoster do Jogo]^000000";
+	mes "Você deseja sair ou ficar na Sala de Espera?";
+	next;
+	set @palette, getlook(7);
+	menu "Eu quero minhas roupas de volta.",OnReturnShirt, "Sim, eu quero voltar para a cidade.",OnLeaveRoom,"Não, eu quero ficar.",-;
+	close2;
+	cutin "",255;
+	end;
+
+OnReturnShirt:
+	cutin "",255;
+	cutin "god_kukur03",2;
+	mes "^BF0073[Hoster do Jogo]^000000";
+
+	if ((@palette == $paletteRed)||(@palette == $paletteBlue)) {
+		mes "Bem, irei lhe enviar de volta, e aqui estão suas roupas!";
+		setlook 7, savePalette;
+	} else {
+		mes "Você ainda não está jogando Poring Ball! Você está tentando roubar as roupas de alguém!?";
+		mes "Saia da minha visão ! Fora!";
+		emotion e_omg;
+	}
+	close2;
+	cutin "",255;
+	end;
+
+OnLeaveRoom:
+	cutin "",255;
+
+	if ((@palette == $paletteRed) ||(@palette == $paletteBlue)) {
+		cutin "god_kukur03",2;
+		mes "^BF0073[Hoster do Jogo]^000000";
+		mes "Antes de você sair, eu vou lhe devolver suas roupas!";
+		setlook 7, savePalette;
+		next;
+		cutin "",255;
+	}
+
+	savepoint "prontera",156,187;
+	warp "prontera",156,187;
+	end;
+}

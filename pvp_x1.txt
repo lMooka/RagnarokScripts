@@ -1,0 +1,346 @@
+//|==================================================================================|
+//|	      ___           ___           ___           ___           ___            |
+//|	     /\  \         /\  \         /\  \         /|  |         /\  \           |
+//|	    |::\  \       /::\  \       /::\  \       |:|  |        /::\  \          |
+//|	    |:|:\  \     /:/\:\  \     /:/\:\  \      |:|  |       /:/\:\  \         |
+//|	  __|:|\:\  \   /:/  \:\  \   /:/  \:\  \   __|:|  |      /:/ /::\  \        |
+//|	 /::::|_\:\__\ /:/__/ \:\__\ /:/__/ \:\__\ /\ |:|__|____ /:/_/:/\:\__\       |
+//|	 \:\--\  \/__/ \:\  \ /:/  / \:\  \ /:/  / \:\/:::::/__/ \:\/:/  \/__/       |
+//|	  \:\  \        \:\  /:/  /   \:\  /:/  /   \::/__/       \::/__/            |
+//|	   \:\  \        \:\/:/  /     \:\/:/  /     \:\  \        \:\  \            |
+//|	    \:\__\        \::/  /       \::/  /       \:\__\        \:\__\           |
+//|	     \/__/         \/__/         \/__/         \/__/         \/__/           |
+//| ================================================================================ |
+//|   Script Desenvolvido Por Mooka | eAthena | Por Favor, Não Retire Os Créditos.   |
+//| ================================================================================ |
+//|[v1.0.0]: Script criado.						(Mooka)	     |
+//| ================================================================================ |
+
+pvpx1	mapflag	nosave
+pvpx1	mapflag	nowarp
+pvpx1	mapflag	nowarpto
+pvpx1	mapflag	nomemo
+pvpx1	mapflag	nobranch
+
+/*
+	@duelStatus - Status do duelo.
+	@myDuel - AID do adversário.
+	$@Duel_list - Lita de Duelos.
+	$@Duel_x1[@myDuel] - AID do desafiante 2.
+	$@Duel_x2[@myDuel] - AID do desafiante 1.
+*/
+
+
+-	script	resetx1arena	-1,{
+
+OnWhisperGlobal:
+
+	if(getgmlevel() < 40) end;
+
+	if(@whispervar0$ == "debug")
+	{
+		for(set @i,1; @i <= 20; set @i, @i+1)
+		{
+		dispbottom "-"+@i+": $@Duel_x1 "+$@Duel_x1[@i];
+		dispbottom "-"+@i+": $@Duel_x2 "+$@Duel_x2[@i];
+		dispbottom "-"+@i+": $@Duel_list "+$@Duel_list[@i];
+		}
+	end;
+
+	}
+
+	set $@DuelStatus,1;
+	deletearray $@Duel_list[0],127;
+	deletearray $@Duel_x1[0],127;
+	deletearray $@Duel_x2[0],127;
+	dispbottom "Tudo";
+	end;
+}
+
+prontera,147,172,5	script	PvP Arena [1x1]	953,{
+
+	mes "^FF0000[Arena]^000000";
+	mes "Atualmente "+getmapusers("pvpx1")+" jogadores estão no mapa da arena.";
+	next;
+	mes "^FF0000[Arena]^000000";
+	mes "Nesta arena é possível realizar duelos ^00FF001x1^000000, basta desafiar o player!";
+	mes "Deseja ir para à arena de Duelos?";
+	if(select("Sim, me leve até lá.:Não quero.") == 2) close;
+	warp "pvpx1",76,97;
+	close;
+}
+
+
+pvpx1,76,101,5	script	Organizador de Duelos#1::od1	953,{
+
+	mes "^FF0000[Arena]^000000";
+	mes "Bem vindo à Arena de Duelos 1x1.";
+	switch(select("Convidar alguém para o Duelo.:Sair da arena.: Nada.")) 
+	{
+	case 1:
+		next;
+		mes "^FF0000^FF0000[Arena]^000000^000000";
+		if(@duelStatus)
+		{
+			mes "Você já está desafiando alguém, apenas aguarde sua vez ou o convite ser aceito.";
+			close;
+		}
+
+		mes "Insira o nome do player a ser desafiado:";
+		set @duelStatus,1;
+		input @name$;
+		callfunc("addDuel2", getcharid(3, @name$));
+		close;
+	case 2:
+		warp "SavePoint",0,0;
+		close;
+	case 3:
+		close;
+	}
+
+}
+
+pvpx1,0,0,5	script	pvpx1event	-1,{
+
+OnWhisperGlobal:
+	detachrid;
+OnInit:
+	setarray $@x1Premio[0],7828, 607;
+Start:
+	set $@DuelStatus, 1;
+	while(1)
+	{
+		sleep 500;
+		if(!$@DuelStatus) continue;
+		set .@DuelIndex, .@DuelIndex + 1;
+		if(.@DuelIndex > 20) set .@DuelIndex, 1;
+		//announce "vetor "+.@DuelIndex, 8;
+
+		if($@Duel_list[.@DuelIndex] == 0) continue;
+		if(!attachrid($@Duel_list[.@DuelIndex]))
+		{
+			set $@Duel_list[.@DuelIndex],0;
+			set $@Duel_x1[.@DuelIndex],0;
+			set $@Duel_x1[.@DuelIndexs],0;
+			continue;
+		}
+
+		if(@duelStatus != 2)
+		{
+			detachrid;
+			continue;
+		}
+		
+		set @duelStatus,3;
+		attachrid(@myDuel);
+		set @duelStatus,3;
+		attachrid(@myDuel);
+
+		mapannounce "pvpx1", "[Arena] O Duelo de "+strcharinfo(0)+" e "+rid2name(@myDuel)+" vai começar em 10 segundos!", bc_blue;
+		sleep2 3000;
+		warpchar "pvpx1",110,99, getcharid(0,rid2name(@myDuel));
+		warp "pvpx1",88,99;
+		sleep2 2000;
+		mapannounce "pvpx1", "[Arena] 5!", bc_blue;
+		sleep2 1000;
+		mapannounce "pvpx1", "[Arena] 4!", bc_blue;
+		sleep2 1000;
+		mapannounce "pvpx1", "[Arena] 3!", bc_blue;
+		sleep2 1000;
+		mapannounce "pvpx1", "[Arena] 2!", bc_blue;
+		sleep2 1000;
+		mapannounce "pvpx1", "[Arena] 1!", bc_blue;
+		sleep2 1000;
+		atcommand "@leave";
+		attachrid(@myDuel);
+		atcommand "@leave";
+		attachrid(@myDuel);
+		atcommand "@Duel";
+		atcommand "@invite "+rid2name(@myDuel);
+		attachrid(@myDuel);
+		atcommand "@accept";
+		mapannounce "pvpx1", "[Arena] MATEM-SE!", bc_blue;
+		detachrid;
+		set $@DuelStatus, 0;
+	}
+
+OnPCLogoutEvent:
+
+	if(@duelStatus == 3)
+	{
+		mapannounce "pvpx1", "[Arena] Duelo cancelado! Um dos desafiantes deslogou!", bc_blue;
+		set $@DuelStatus,1;
+	}
+
+	if(@myDuel)
+	{
+		if(@di) set $@Duel_list[@di],0;
+		set $@Duel_x1[@di],0;
+		set $@Duel_x1[@di],0;
+		set @duelStatus,0;
+		attachrid(@myDuel);
+		dispbottom "O Desafiado deslogou! Você foi removido da lista de espera.";
+		if(@di) set $@Duel_list[@di],0;
+		set $@Duel_x1[@di],0;
+		set $@Duel_x1[@di],0;
+		set @duelStatus,0;
+	} end;
+
+OnPCKillEvent:
+	getmapxy(@map$,@x,@y,0);
+	if(@map$ == "pvpx1" && @duelStatus == 3)
+	{
+	mapannounce "pvpx1", "[Arena] "+strcharinfo(0)+" matou "+rid2name(killedrid)+"!", bc_blue;
+	getitem $@x1Premio[rand(getarraysize($@x1Premio))],1;
+	sleep2 3000;
+	callfunc("endDuel2");
+	mapannounce "pvpx1", "[Arena] Registrem-se para um novo duelo!", bc_blue;
+	sleep2 5000;
+	set $@DuelStatus, 1;
+	}
+}
+
+// getarg(0) = AID
+function	script	addDuel2	{
+
+	if(@name$ == strcharinfo(0))
+	{
+		mes "^FF0000[Arena]^000000";
+		mes "Você não pode desafiar a si mesmo.";
+		set @duelStatus,0;
+		close;
+	}
+
+	if(rid2name(getarg(0)) != @name$)
+	{
+		mes "^FF0000[Arena]^000000";
+		mes "Player offline.";
+		set @duelStatus,0;
+		close;
+	}
+
+	set .backRid, getcharid(3);
+	attachrid(getarg(0));
+	getmapxy(@map$,@x,@y,0);
+
+	if(@map$ != "pvpx1")
+	{
+		attachrid(.backRid);
+		mes "^FF0000[Arena]^000000";
+		mes "O Player deve estar no mapa da arena para ser convidado.";
+		set @duelStatus,0;
+		close;
+	} 
+
+	if(BaseLevel < 99)
+	{
+		attachrid(.backRid);
+		mes "^FF0000[Arena]^000000";
+		mes "Este player não pode ser convidado pois seu level é muito baixo.";
+		set @duelStatus,0;
+		close;
+	} attachrid(.backRid);
+			
+	
+	for(set @di,1; $@Duel_list[@di] != 0 && @di <= 20; set @di, @di+1);
+
+	if(@di == 20)
+	{
+		mes "^FF0000[Arena]^000000";
+		mes "A arena está lotada de pedidos com duelos, por favor, tente novamente após um duelo se finalizar.";
+		set @duelStatus,0;
+		close;
+	}
+
+	set $@Duel_list[@di], getcharid(3);
+	set @myDuel, getarg(0);
+	mes "^FF0000[Arena]^000000";
+	mes "Seu convite será enviado ao player em instantes...";
+	mes "Assim que for aceito você será informado.";
+	close2;
+	set .@backrid, getcharid(3);
+	set .@di, @di;
+	set @duelStatus, 1;
+
+	attachrid(@myDuel);
+		if(@duelStatus)
+		{
+			attachrid(.@backrid);
+			mes "^FF0000[Arena]^000000";
+			mes "Este player já está em um duelo.";
+			mes "Não foi possível enviar um convite para o mesmo.";
+			set @duelStatus, 0;
+			close;
+		}
+
+	set @duelStatus, 1;
+	set @backrid, .@backrid;
+	set @di, .@di;
+	mes "^FF0000[Arena]^000000";
+	mes "Você foi convidado para um Duelo por ^0000FF"+rid2name(@backrid)+".";
+	mes "Deseja aceitá-lo?";
+		if(select("Aceitar:Cancelar") == 2)
+		{
+			mes "^FF0000[Arena]^000000";
+			mes "Duelo rejeitado.";
+			close2;
+			set @duelStatus, 0;
+			attachrid(@backrid);
+			mes "^FF0000[Arena]^000000";
+			mes "O Duelo foi rejeitado por ^0000FF"+rid2name(@myDuel)+".";
+			close2;
+			set @duelStatus, 0;
+			set $@Duel_list[@myDuel],0;
+			end;
+		}
+
+	set @myDuel, @backrid;
+	set $@Duel_x1[@di], @myDuel;
+	mes "^FF0000[Arena]^000000";
+	mes "Você aceitou o duelo, aguarde a chamada para a arena.";
+	close2;
+		if(!attachrid(@backrid))
+		{
+		mes "^FF0000[Arena]^000000";
+		mes "O Desafiante deslogou, duelo cancelado.";
+		set @duelStatus,0;
+		close;
+		}
+	mes "^FF0000[Arena]^000000";
+	set $@Duel_x1[@di], @myDuel;
+	mes "O player aceitou o duelo, aguarde a chamada para a arena.";
+	attachrid(@myDuel);
+	set @duelStatus,2;
+	attachrid(@backrid);
+	set @duelStatus, 2;
+	close2;
+	end;
+
+}
+
+function	script	endDuel2	{
+
+	if(@di) set $@Duel_list[@di],0;
+	set $@Duel_x1[@di],0;
+	set @duelStatus,0;
+
+	attachrid(@myDuel);
+
+	if(@di) set $@Duel_list[@di],0;
+	set $@Duel_x1[@di],0;
+	set @duelStatus,0;
+
+	warpchar "pvpx1",76,98, getcharid(0,rid2name(@myDuel));
+	warp "pvpx1",76,98;
+	detachrid;
+	return;
+}
+
+
+
+/*pvpx1,72,107,5	script	reset#1	951,{
+
+	set @duelStatus,0;
+	set @myDuel,0;
+
+}*/

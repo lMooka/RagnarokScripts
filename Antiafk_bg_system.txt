@@ -1,0 +1,177 @@
+//|==================================================================================|
+//|	      ___           ___           ___           ___           ___            |
+//|	     /\  \         /\  \         /\  \         /|  |         /\  \           |
+//|	    |::\  \       /::\  \       /::\  \       |:|  |        /::\  \          |
+//|	    |:|:\  \     /:/\:\  \     /:/\:\  \      |:|  |       /:/\:\  \         |
+//|	  __|:|\:\  \   /:/  \:\  \   /:/  \:\  \   __|:|  |      /:/ /::\  \        |
+//|	 /::::|_\:\__\ /:/__/ \:\__\ /:/__/ \:\__\ /\ |:|__|____ /:/_/:/\:\__\       |
+//|	 \:\--\  \/__/ \:\  \ /:/  / \:\  \ /:/  / \:\/:::::/__/ \:\/:/  \/__/       |
+//|	  \:\  \        \:\  /:/  /   \:\  /:/  /   \::/__/       \::/__/            |
+//|	   \:\  \        \:\/:/  /     \:\/:/  /     \:\  \        \:\  \            |
+//|	    \:\__\        \::/  /       \::/  /       \:\__\        \:\__\           |
+//|	     \/__/         \/__/         \/__/         \/__/         \/__/           |
+//| ================================================================================ |
+//|   Script Desenvolvido Por Mooka | eAthena | Por Favor, Não Retire Os Créditos.   |
+//| ================================================================================ |
+//|[1.0.1] : Adicionado suporte a multiplas arenas. [Mooka]			     |
+//|[1.0.0] : NPC criado. [Mooka]						     |
+//| ================================================================================ |
+-	script	Kick_AFK	-1,{						//   |
+//| ================================================================================ |
+OnInit:										//   |
+//|										     |
+//| ==> Configuração do aviso a ser kickado.					     |
+//| -> Nota: 1 = 15 segundos.							     |
+//| => Receber aviso em:							     |
+set $@AFK_Time_warning, 1; // 15 segundos					//   |
+//|										     |
+//| => Receber Kick em:								     |
+set $@AFK_Time_Kick, 2; // 30 segundos						//   |
+//|										     |
+//| ==> Mapas onde o sistema deve funcionar.					     |
+//| -> Altere também os loadevent no final do arquivo de acordo aos mapas da lista.  |							     |
+setarray $@BGMapList$[0], "prontera", "mapa2", "mapa3", "mapa4";		//   |
+//|										     |
+//| ==> Deseja ativar o sistema manualmente?					     |
+//| -> Será necessário configurar a função BGStatus, comentários na função.	     |
+set $@StatusSystem,0; // 1 = Ativado						     |
+//|										     |
+//| ================================================================================ |
+
+	while(1)
+	{
+	sleep2 15000;
+	callfunc("checkafk");
+	}
+}
+
+-	script	AntiAFKBgEvent	-1,{
+
+OnPCLogOutEvent:
+	getmapxy(@map$,@x,@y,0);
+	if(@map$ != $@AFK_MAP$[@AFK_Index]) end;
+	set $@AFK_RID_LIST[@AFK_Index], 0;
+	set $@AFK_MAP$[@AFK_Index],"";
+	set $@AFK_X[@AFK_Index],0;
+	set $@AFK_Y[@AFK_Index],0;
+	end;
+
+
+OnPCLoadMapEvent:
+	getmapxy(@map$,@x,@y,0);
+	for(set @i,0; @i <= getarraysize($@BGMapList$); set @i, @i+1)
+	{
+		if($@BGMapList$[@i] == @map$) callfunc("SystemAFK", @i);
+		end;
+	}
+
+}
+
+/*----------------
+	Função: Utilize essa função antes de teleportar o player para o BG.
+	getarg(0): ID da arena (definido em $@BGMapList$).
+	Retorno: -1 se o registro passou de 127.
+------------------*/
+
+function	script	SystemAFK	{
+
+	for(set @i,0;@i <= 127; set @i, @i+1)
+	{
+		if($@AFK_RID_LIST[@i] || $@AFK_RID_LIST[@i] == getcharid(3)) continue;
+		set @AFK_Index, @i;
+		set $@AFK_RID_LIST[@AFK_Index], getcharid(3);
+		set $@AFK_MAP$[@AFK_Index], $@BGMapList$[getarg(0)];
+		set @bg_id,getarg(0);
+		return;
+	} return -1;
+}
+
+
+/*----------------
+	Função: Deve ser usada sempre que o BG for iniciado.
+	Argumento 0: ID do BG.
+	Argumento 1: 0 Desativado; 1 Ativado.
+------------------*/
+
+function	script	BGStatus	{
+
+set $@Bg_status[getarg(0)], getarg(1);
+return;
+
+}
+
+/*----------------
+Não interessa comentários
+------------------*/
+
+function	script	checkafk	{
+
+	for(set .i,0; .i < 127; set .i,.i+1)
+	{
+		if(!$@AFK_RID_LIST[.i]) continue;
+		if(!attachrid($@AFK_RID_LIST[.i])) continue;
+		if(!$@Bg_status[@bg_id] && $@StatusSystem) continue;
+		getmapxy(@map$,@x,@y,0);
+		if($@AFK_X[.i] != @x && $@AFK_Y[.i] != @y)
+		{
+				if($@AFK_MAP$[.i] == @map$)
+				{
+					set $@AFK_X[.i],@x;
+					set $@AFK_Y[.i],@y;
+					set @AFKCount,0;
+					detachrid;
+					continue;
+				}
+			set $@AFK_RID_LIST[.i], 0;
+			set $@AFK_MAP$[.i],"";
+			set $@AFK_X[.i],0;
+			set $@AFK_Y[.i],0;
+			set @AFKCount,0;
+			detachrid;
+			continue;
+		}
+		else
+		{
+			set @AFKCount, @AFKCount+1;
+			// Esta parte define o tempo afk.
+			if(@AFKCount == $@AFK_Time_warning) 
+			{
+			announce "Battleground: Você será kickado do Battleground em "+(($@AFK_Time_Kick-$@AFK_Time_warning)*15)+" segundos por estar AFK.",bc_self|bc_blue;
+			detachrid;
+			continue;
+			} 
+				if(@AFKCount >= $@AFK_Time_Kick)
+			  	{
+				mapannounce $@AFK_MAP$[@AFK_Index],"Battleground: "+strcharinfo(0)+" foi kickado por estar AFK", bc_map|bc_blue;
+				set @AFKCount,0;
+				set $@AFK_RID_LIST[@AFK_Index], 0;
+				set $@AFK_MAP$[@AFK_Index],"";
+				set $@AFK_X[@AFK_Index],0;
+				set $@AFK_Y[@AFK_Index],0;
+				warp "SavePoint",0,0;
+				detachrid;
+				continue;
+				}
+		}
+	} return;
+}
+
+
+// Adicionar, remover, alterar de acordo aos mapas existentes na array $@BGMapList$.
+
+prontera	mapflag	loadevent
+//mapa2	mapflag loadevent
+//mapa3	mapflag loadevent
+//mapa4	mapflag	loadevent
+
+
+
+/*
+	$@AFK_RID_LIST[] - Array com os rids presentes no prontera do BG.
+	$@AFK_MAP$[] - Array com o mapa do jogador.
+	$@AFK_X[] - Array com a posição X do jogador.
+	$@AFK_Y[] - Array com a posição Y do jogador.
+	$@Indexer - Posição do player na Array $@AFK_RID_LIST[].
+	@AFkCount - Contém o tempo do player AFK. (@AFKCount*15)
+	$@Bg_status[] - Informa se a BG está ativa ou aguardando ser iniciada. (Boolean - 1 para ativo)
+*/

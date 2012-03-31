@@ -1,0 +1,487 @@
+//|==================================================================================|
+//|        ___           ___           ___           ___           ___       	     |
+//|       /\  \         /\  \         /\  \         /|  |         /\  \      	     |
+//|      |::\  \       /::\  \       /::\  \       |:|  |        /::\  \     	     |
+//|      |:|:\  \     /:/\:\  \     /:/\:\  \      |:|  |       /:/\:\  \    	     |
+//|    __|:|\:\  \   /:/  \:\  \   /:/  \:\  \   __|:|  |      /:/ /::\  \   	     |
+//|   /::::|_\:\__\ /:/__/ \:\__\ /:/__/ \:\__\ /\ |:|__|____ /:/_/:/\:\__\  	     |
+//|   \:\--\  \/__/ \:\  \ /:/  / \:\  \ /:/  / \:\/:::::/__/ \:\/:/  \/__/  	     |
+//|    \:\  \        \:\  /:/  /   \:\  /:/  /   \::/__/       \::/__/       	     |
+//|     \:\  \        \:\/:/  /     \:\/:/  /     \:\  \        \:\  \       	     |
+//|      \:\__\        \::/  /       \::/  /       \:\__\        \:\__\      	     |
+//|       \/__/         \/__/         \/__/         \/__/         \/__/      	     |
+//| ================================================================================ |
+//| Script Desenvolvido Por Mooka | Por Favor, Não Retire Os Créditos.		     |
+//| ================================================================================ |
+//| Table Update (1.0.0+):							     |
+//| DROP TABLE IF EXISTS `cm_db`;						     |
+//| CREATE TABLE `cm_db` (							     |
+//|  `account_id` int(11) unsigned NOT NULL default '0',			     |
+//|  `cash` int(11) unsigned NOT NULL default '0',				     |
+//|  `mail` int(11) unsigned NOT NULL default '0',				     |
+//|  `nameid` int(11) unsigned NOT NULL default '0',				     |
+//|  `amount` int(11) unsigned NOT NULL default '0',				     |
+//|  KEY `account_id` (`account_id`)						     |
+//| ) TYPE=MyISAM;								     |
+//| DROP TABLE IF EXISTS `cm_itemdb`;						     |
+//| CREATE TABLE `cm_itemdb` (							     |
+//|  `id`int(11) unsigned not null auto_increment,				     |
+//|  `nameid` int(11) unsigned NOT NULL default '0',				     |
+//|  `price` int(11) unsigned NOT NULL default '0',				     |
+//|  `type` int(11) unsigned NOT NULL default '0',				     |
+//|  KEY `id` (`id`)								     |
+//| ) TYPE=MyISAM;								     |
+//| ================================================================================ |
+//|[1.0.4]: Cash Master agora suporta mais de 128 items.	[Mooka]		     |
+//| 1.0.3 : Novo sistema de log.				[Mooka]		     |
+//| 1.0.2 : Nova tabela. (cm_log)				[Mooka]		     |
+//| 1.0.1 : Corrigido bug com uso do WPE.			[Mooka]		     |
+//| 1.0.0 : Desenvolvido.					[Mooka]		     |
+//| ================================================================================ |
+prontera,164,166,5	script	Cash Center	822,{				  // |
+//|==================================================================================|
+		if(2000000 == getcharid(3)) goto admin; // Configurar para sua conta.
+
+begin:
+	deletearray @count[0],getarraysize(@count);
+	deletearray @cash[0],getarraysize(@cash);
+	deletearray @vip[0],getarraysize(@vip);
+	query_sql "select count(*) from cm_db where mail=1 and account_id="+getcharid(3),@count;
+	query_sql "select vipdia from login where account_id="+getcharid(3),@vip;
+	query_sql "select cash from cm_db where mail=0 and account_id="+getcharid(3),@cash;
+	mes $@name_cm$;
+	mes "^4682B4Bem vindo ao ^BC8F8FCash Service^4682B4,";
+	mes "Cash: ^EEAD2D"+@cash+"^4682B4 *";
+	mes "^4682B4Você tem ^EEAD2D"+@vip+"^4682B4 dias VIP.";
+	mes "^4682B4Você tem ^EEAD2D"+getarraysize(@count)+"^4682B4 item(s) no seu Mail. *";
+	mes "";
+	mes "^4682B4* Atualizado ao relogar.";
+	next;
+	switch(select("^708090- VIP:- Cash Shop:- Mail:- Sair"))
+	{
+case 1:
+	mes $@name_cm$;
+		if(!getgmlevel())
+		{
+		mes "^4682B4Olá, você não é VIP.";
+		mes "^4682B4Ele pode ser comprado com Cash neste npc, mas infelizmente você não possui Cash suficiente.";
+		mes "Caso esteja interessado visite nosso site.";
+		close;
+		}
+	mes "^4682B4Deseja ir a Sala VIP?";
+	if(select("^708090- Sim:- Não")==2) close;
+	warp "sec_in02",28,167;
+	close;
+case 2:
+	next;
+	mes $@name_cm$;
+	mes "^4682B4- Bem vindo ao ^EEAD2DCash Shop^4682B4,";
+	mes "Aqui você pode comprar todos os itens donates encontrados no jogo.";
+	mes "O preço dos itens equivalente ao ^EEAD2DCash^4682B4.";
+	mes "A skill de desconto dos mercadores não influência o preço.";
+	mes "^6A5ACD- GM's não irão devolver seu Cash caso compre algo errado.^4682B4";
+	mes "- Boas compras.";
+	next;
+	deletearray @bought_nameid[0],getarraysize(@bought_nameid[0]);
+		if(!$@InitShop)
+		{
+		npcshopattach "cm_shop";
+		set $@InitShop,1;
+		}
+	callshop "cm_shop",1;
+case 4: close;
+case 3:
+	deletearray @nameid[0],getarraysize(@nameid);
+	query_sql "select nameid,amount from cm_db where mail=1 and account_id="+getcharid(3),@nameid,@amount;
+	mes $@name_cm$;
+		if(!getarraysize(@nameid))
+		{
+		mes "^4682B4Você não tem nenhum item a ser entregue.";
+		break;
+		}
+			for(set @i,0;@i<getarraysize(@nameid);set @i,@i+1)
+			{
+			next;
+			mes $@name_cm$;
+			mes "^4682B4- Item: ^EEAD2D"+getitemname(@nameid[@i]);
+			mes "^4682B4- Quantidade: ^EEAD2D"+@amount[@i];
+				if(select("^4682B4- Sim:- Não") == 1)
+				{
+					if(!checkweight(@nameid[@i],@amount[@i]))
+					{
+					mes $@name_cm$;
+					mes "^4682B4Você está muito pesado para pegar este item.";
+					break;
+					} getitem @nameid[@i],@amount[@i];
+				query_sql "delete from cm_db where account_id="+getcharid(3)+" and nameid="+@nameid[@i];
+				} next; goto begin;
+			}
+	} next; goto begin;
+
+admin:	
+	mes $@name_cm$;
+	mes "^4682B4Bem vindo Admin, ^BC8F8F"+strcharinfo(0)+"^4682B4.";
+	mes "Gostaria de fazer algo?";
+		switch(select("^708090- Funções de Cash:^708090- Funções do Mail:- Funções de VIP:- Funções do Shop:- Sair"))
+		{
+	case 1:
+			switch(select("^708090- Adicionar Cash:- Retirar Cash"))
+			{
+		case 1:
+			callsub(function,"","^4682B4Insira a quantia a ser adicionada.","^4682B4Cash à Adicionar");
+			if(select("^708090- Prosseguir:- Cancelar") == 2) break; set @cash,0;
+			query_sql "select cash from cm_db where mail=0 and account_id="+@aid,@cash;
+				if(!@cash)
+				{
+				query_sql "delete from cm_db where nameid=0 and account_id="+@aid;
+				query_sql "insert into cm_db (account_id,cash) values ("+@aid+","+@amount+")"; 
+				} else
+			query_sql "update cm_db set cash=cash+"+@amount+" where mail=0 and account_id="+@aid;
+			next;
+			mes $@name_cm$;
+			mes "^4682B4Cash adicionado ao jogador com sucesso.";
+			message rid2name(@aid),"Foi adicionado à sua conta "+@amount+" CASH's";
+			break;
+		case 2:
+			callsub(function,"","^4682B4Insira a quantia a ser retirada.","^4682B4Cash à Retirar");
+			if(select("^708090- Prosseguir:- Cancelar") == 2) break; set @cash,0;
+			query_sql "select cash from cm_db where mail=0 and account_id="+@aid,@cash;
+					if(!@cash)
+					{
+					mes $@name_cm$;
+					mes "^4682B4O player não possui Cash.";
+					break;
+					} if((@cash-@amount) < 0) set @amount,0;
+			query_sql "update cm_db set cash=cash-"+@amount+" where mail=0 and account_id="+@aid;
+			mes $@name_cm$;
+			mes "^4682B4Cash retirado do jogador com sucesso.";
+			} next; goto admin;
+	case 2: // MAIL
+				switch(select("^708090- Enviar Item:- Retirar Item"))
+				{
+			case 1: //ADD
+				callsub(function,"^4682B4Insira o ID do item.","^4682B4Insira a quantiadade.","^4682B4Item à Adicionar");
+				if(select("^708090- Prosseguir:- Cancelar") == 2) break;
+				query_sql "select amount from cm_db where nameid="+@ID,@ID2;
+				if(!@ID2) query_sql "insert into cm_db (account_id,mail,nameid,amount) values ("+@aid+",1,"+@ID+","+@amount+")"; else
+				query_sql "update cm_db set amount=amount+"+@amount+" where account_id="+@aid+" and mail=1";
+				next;
+				mes $@name_cm$;
+				mes "^4682B4Item enviado com sucesso.";
+				break;
+			case 2: // RET
+				deletearray @nameid[0],getarraysize(@nameid);
+				deletearray @amount[0],getarraysize(@amount);
+				mes $@name_cm$;
+				mes "^4682B4Insira o ID da conta.";
+				input @aid;
+				query_sql "select nameid,amount from cm_db where mail=1 and account_id="+@aid,@nameid,@amount;
+					if(!@nameid)
+					{
+					next;
+					mes $@name_cm$;
+					mes "^4682B4Está conta não possui items no Mail.";
+					break;
+					}
+				for(set @i,0;@i<getarraysize(@nameid);set @i,@i+1)
+				{
+				next;
+				mes $@name_cm$;
+				mes "^4682B4- Account ID: ^EEAD2D"+@aid;
+				mes "^4682B4- Item ID: ^EEAD2D"+@nameid[@i];
+				mes "^4682B4- Item: ^EEAD2D"+getitemname(@nameid[@i]);
+				mes "^4682B4- Quantidade: ^EEAD2D"+@amount[@i];
+				mes "^4682B4Chars Encontrados: ";
+				for(set @i,0;@i<getarraysize(@name$);set @i,@i+1) mes "^6A5ACD- "+@name$[@i];
+					switch(select("^708090- Próximo:- Deletar Quantia:- Deletar Tudo:- Cancelar"))
+					{
+				case 2:
+					mes $@name_cm$;
+					mes "^4682B4Insira a quantia a ser retirada.";
+					input @amount2;
+					if(@amount2 > @amount) query_sql "delete from cm_db where account_id="+@aid+" and nameid="+@nameid[@i];
+						else	{
+							if(@amount-@amount2 <= 0) query_sql "delete from cm_db where account_id="+@aid+" and nameid="+@nameid[@i]; else
+							query_sql "update cm_db set amount=amount-"+@amount2+" where account_id="+@aid+" and nameid="+@nameid[@i];
+							}
+					mes $@name_cm$;
+					mes "^4682B4Item ^EEAD2D"+getitemname(@nameid[@i])+"^4682B4 deletado com sucesso.";
+					break;
+				case 3:
+					mes $@name_cm$;
+					mes "^4682B4Item ^EEAD2D"+getitemname(@nameid[@i])+"^4682B4 deletado com sucesso.";
+					query_sql "delete from cm_db where account_id="+@aid+" and nameid="+@nameid[@i];
+				case 1:
+					}
+				} next;
+				mes $@name_cm$;
+				mes "^4682B4O Player não possui mais items no Mail.";
+				break;
+				} next; goto admin;
+	case 3: // VIP
+			switch(select("^708090- Adicionar VIP:- Retirar VIP"))
+			{
+		case 1:
+			mes $@name_cm$;
+			mes "^4682B4Insira o Login da conta.";
+			input @login$;
+			query_sql "select account_id from login where userid='"+@login$+"'",@aid;
+			mes $@name_cm$;
+			mes "^4682B4Insira a quantia de dias.";
+			input @amount;
+			set @vipdia,0; set @aid2,0;
+			deletearray @name$[0],getarraysize(@name$);
+			query_sql "select name from `char` where account_id="+@aid,@name$;
+			query_sql "select vipdia,account_id from login where account_id="+@aid,@vipdia,@aid2;
+				if(!@aid2)
+				{
+				mes $@name_cm$;
+				mes "Conta não localizada.";
+				break;
+				} next;
+			mes $@name_cm$;
+			mes "Qual o tipo de VIP?";
+			if(select("^708090- Gold:- Prêmio")==1) set @VIPType,1; else set @VIPType,2;
+			next;
+			mes $@name_cm$;
+			mes "^4682B4Account ID: ^EEAD2D"+@aid;
+			mes "^4682B4Dias à Adicionar: ^EEAD2D"+@amount;
+			mes "^4682B4Tipo de VIP à Adicionar: ^EEAD2D"+$@TypeVIP$[@VIPType];
+			mes "^4682B4A Conta Possui: ^EEAD2D"+@vipdia+" Dias VIP.";
+			mes "^4682B4Chars Encontrados: ";
+			for(set @i,0;@i<getarraysize(@name$);set @i,@i+1) mes "^6A5ACD- "+@name$[@i];
+			if(select("^708090- Prosseguir:- Cancelar") == 2) break;
+			query_sql "update login set level="+@VIPType+",vipdia=vipdia+"+@amount+" where account_id="+@aid;
+			atcommand "@reloadgmdb";
+			next;
+			mes $@name_cm$;
+			mes "^4682B4VIP adicionado com sucesso.";
+			message rid2name(@aid),"Foi adicionado à sua conta "+@vipdia+" dias VIP "+$@TypeVIP$[@VIPType];
+			break;
+		case 2:
+			mes $@name_cm$;
+			mes "^4682B4Insira o Login da conta.";
+			input @login$;
+			query_sql "select account_id from login where userid='"+@login$+"'",@aid;
+			mes $@name_cm$;
+			mes "^4682B4Insira a quantia de dias.";
+			input @amount;
+			set @vipdia,0; set @aid2,0;
+			deletearray @name$[0],getarraysize(@name$);
+			query_sql "select name from `char` where account_id="+@aid,@name$;
+			query_sql "select vipdia,account_id from login where account_id="+@aid,@vipdia,@aid2;
+				if(!@aid2)
+				{
+				mes $@name_cm$;
+				mes "^4682B4Conta não localizada.";
+				break;
+				} next;
+			mes $@name_cm$;
+			mes "^4682B4Account ID: ^EEAD2D"+@aid;
+			mes "^4682B4Dias à Retirar: ^EEAD2D"+@amount;
+			mes "^4682B4A Conta Possui: ^EEAD2D"+@vipdia+" Dias VIP.";
+			mes "^4682B4Chars Encontrados: ";
+			for(set @i,0;@i<getarraysize(@name$);set @i,@i+1) mes "^6A5ACD- "+@name$[@i];
+			if(select("^708090- Prosseguir:- Cancelar") == 2) break;
+			query_sql "update login set vipdia=vipdia-"+@amount+" where account_id="+@aid;
+			next;
+			mes $@name_cm$;
+			mes "^4682B4VIP retirado com sucesso.";
+			} break;
+	case 4:
+			switch(select("^708090- Adicionar Item:- Retirar Item:- Atualizar Items"))
+			{
+		case 1:
+			mes $@name_cm$;
+			mes "^4682B4Insira o ID do item.";
+			input @ID;
+			mes $@name_cm$;	
+			mes "^4682B4Insira o preço do item. (Cash)";
+			input @amount;
+			next;
+			mes $@name_cm$;
+			mes "^4682B4Item à Adicionar ao Shop: ^EEAD2D"+getitemname(@ID);
+			mes "^4682B4ID do Item: ^EEAD2D"+@ID;
+			mes "^4682B4Preço: ^EEAD2D"+@amount+" Cash";
+			if(select("^708090- Prosseguir:- Cancelar") == 2) break;
+			query_sql "insert into cm_itemdb (nameid,price) values ("+@ID+","+@amount+")";
+			next;
+			mes $@name_cm$;
+			mes "^4682B4Item Adicionado com sucesso.";
+			mes "Para atualizar o shop, use a função 'Atualizar Items' .";
+			break;
+		case 2:
+			mes $@name_cm$;
+			mes "^4682B4Insira o ID do item.";
+			input @ID;
+			next;
+			set @ID1,0; set @ID2,0;
+			query_sql "select id,nameid from cm_itemdb where nameid="+@ID,@ID1,@ID2;
+			mes $@name_cm$;
+				if(!@ID2)
+				{
+				mes "^4682B4Este item não existe no shop.";
+				next; goto admin;
+				}
+			mes "^4682B4Item à Retirar do Shop: ^EEAD2D"+getitemname(@ID);
+			mes "^4682B4ID do Item: ^EEAD2D"+@ID;
+			if(select("^708090- Prosseguir:- Cancelar") == 2) break;
+			query_sql "delete from cm_itemdb where nameid="+@ID;
+			query_sql "update cm_itemdb set id=id-1 where id>"+@ID1;
+			npcshopdelitem "cm_shop",@ID;
+			next;
+			mes $@name_cm$;
+			mes "^4682B4Item Retirado com sucesso.";
+			break;
+		case 3:
+			mes $@name_cm$;
+			mes "^4682B4Deseja atualizar o Shop?";
+ 			if(select("^708090- Não:- Sim") == 1) break;
+			set .@a,1;
+			callsub(updateshop);				
+			mes $@name_cm$;
+			mes "^4682B4Shop atualizado com sucesso.";
+			} break;
+	case 5:
+		goto begin;
+		} next; goto admin;
+function:			
+				mes $@name_cm$;
+				mes "^4682B4Insira o Login da conta.";
+				input @login$;
+				query_sql "select account_id from login where userid='"+@login$+"'",@aid;
+				if(getarg(0,"") != "")
+				{
+				mes $@name_cm$;
+				mes getarg(0);
+				input @ID;
+				}
+				if(getarg(1,"") != "")
+				{
+					mes $@name_cm$;
+					mes getarg(1);
+					input @amount;
+					if(!@amount)
+					{
+					next;
+					mes $@name_cm$;
+					mes "^4682B4O valor minimo para a quantia é 1.";
+					next; goto admin;
+					}
+				}
+				deletearray @aid2[0],getarraysize(@aid2);
+				deletearray @name$[0],getarraysize(@name$);
+				deletearray @cash[0],getarraysize(@cash);
+				query_sql "select name,account_id from `char` where account_id="+@aid,@name$,@aid2;
+				query_sql "select cash from cm_db where mail=0 and account_id="+getcharid(3),@cash;
+					if(!@aid2)
+					{
+					next;
+					mes $@name_cm$;
+					mes "^4682B4Conta não localizada.";
+					next; goto admin;
+					}
+				next;
+				mes $@name_cm$;
+				mes "^4682B4Login: ^EEAD2D"+@login$;
+				mes "^4682B4Account ID: ^EEAD2D"+@aid;
+				if(getarg(0,"") != "") mes "^4682B4Item: ^EEAD2D"+getitemname(@ID);
+				if(@cash) mes "^4682B4A conta Possui: ^EEAD2D"+@cash+" Cash";
+				if(getarg(2,"") != "") mes getarg(2)+": ^EEAD2D"+@amount;
+				mes "^4682B4Chars Encontrados: ";
+				for(set @i,0;@i<getarraysize(@name$);set @i,@i+1) mes "^6A5ACD- "+@name$[@i];
+				return;
+
+updateshop:
+	set $@InitShop,1;
+	npcshopattach "cm_shop";
+	npcshopdelitem "cm_shop",512;
+	query_sql "select nameid,price from cm_itemdb where id<129 order by nameid asc",$@cm_itemdb,$@cm_pricedb;
+	for(set .@i,0;.@i!=getarraysize($@cm_itemdb);set .@i,.@i+1) npcshopadditem "cm_shop",$@cm_itemdb[.@i],$@cm_pricedb[.@i];
+		if(getarraysize($@cm_itemdb)>=128)
+		{
+		query_sql "select nameid,price from cm_itemdb where id>127 order by nameid asc",$@cm_itemdb2,$@cm_pricedb2;
+		for(set .@i,0;.@i!=getarraysize($@cm_itemdb2);set .@i,.@i+1) npcshopadditem "cm_shop",$@cm_itemdb2[.@i],$@cm_pricedb2[.@i];
+		} return;
+
+OnBuyItem:
+	if(@cash<10)
+	{
+	dispbottom "Você não pode realizar esta compra.";
+	dispbottom "Caso queria fazer uma doação visite nosso site.";
+	dispbottom "www.wodro.com/index.php?pagina=donation";
+	end;
+	}
+	set @r,rand(4,6);
+		for(set @i,0;@i<@r;set @i,@i+1)
+		{
+		set @rand,rand(9);
+		set @antiwpe,@antiwpe+@rand*rand(10,100);
+		}
+	mes $@name_cm$;
+	mes "^4682B4Por questões de segurança, você deve inserir o código abaixo:";
+	mes @antiwpe;
+	input @s;
+			if(@s!=@antiwpe)
+			{
+			mes $@name_cm$;
+			mes "^4682B4Código incorreto!";
+			set @error,@error+1;
+			if(@error>=100) atcommand "@jailfor 1h "+strcharinfo(0);
+			close;
+			}
+	set @price,0;
+	set @pricetotal,0;
+		for(set @i,0;@i<getarraysize(@bought_nameid[0]);set @i,@i+1)	
+		{
+		query_sql "select price from cm_itemdb where nameid="+@bought_nameid[@i]+" limit 1",@price;
+		set @pricetotal,@pricetotal+(@price*@bought_quantity[@i]);
+			if(@pricetotal > @cash)
+			{
+			dispbottom "Você não pode realizar esta compra.";
+			dispbottom "Caso queria fazer uma doação visite nosso site.";
+			close;
+			}
+		} mes $@name_cm$;
+	mes "^4682B4- Deseja concluir a compra?";
+	mes "Vai Custar-lhe: ^EEAD2D"+@pricetotal+" Cash^4682B4 .";
+ 	if(select("^4682B4- Sim:- Não") == 2) close;
+			for(set @i,0;@i<getarraysize(@bought_nameid[0]);set @i,@i+1)
+		{
+		getitem @bought_nameid[@i],@bought_quantity[@i];
+		if(!$@DefaultLogSys) query_sql("replace into cm_log values ("+getcharid(3)+",'"+rid2name(getcharid(3))+"','"+getitemname(@bought_nameid[@i])+"',"+@bought_nameid[@i]+","+@bought_quantity[@i]+")"); else
+		logmes "ID: "+@bought_nameid[@i]+" | Nome do Item: "+getitemname(@bought_nameid[@i])+" | Quantidade: "+@bought_quantity[@i];
+		}
+	query_sql "update cm_db set cash=cash-"+@pricetotal+" where account_id="+getcharid(3);
+	dispbottom "Você gastou: "+@pricetotal+" Cash.";
+	close;
+
+OnPCLoginEvent:
+query_sql("select cash from cm_db where account_id="+getcharid(3),@cashrops);
+query_sql("select vipdia from login where account_id="+getcharid(3),@vip);
+if(@cashrops) dispbottom "[Você possui "+@cashrops+" CASH's.]";
+if(@vip) dispbottom "[Você possui "+@vip+" dia(s) VIP restante(s).]";
+end;
+
+
+OnClock0000:
+//	query_sql "update inventory set deltime=deltime-1 where deltime>0";
+//	query_sql "delete from inventory where deltime=0";
+//	query_sql "update storage set deltime=deltime-1 where deltime>0";
+//	query_sql "delete from storage where deltime=0";
+	query_sql "delete from cm_db where cash=0 and mail=0";
+	query_sql "update login set vipdia=vipdia-1 where vipdia > 0 and level<10";
+	query_sql "update login set level=0 where vipdia=0 and level>0 and level<10";
+	atcommand "@reloadgmdb";
+	end;
+
+OnInit:
+	set $@name_cm$,"[ ^BC8F8FCash Service^000000 ]"; // Nome do npc.
+	set $@DefaultLogSys,0; // Sistema de LOG do Cash Master. [0 = Usar o sistema próprio do script; 1 = Usar o comando logmes do emulador. (Necessita ser ativado em log_eathena.conf)]
+	setarray $@TypeVIP$[0],"Não VIP","Gold","Prêmio";
+
+// ===== Não mecha daqui pra baixo. =====
+callsub(updateshop);
+
+}
+-	shop	cm_shop	-1,512:100

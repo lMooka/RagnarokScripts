@@ -1,0 +1,45 @@
+//|==================================================================================|
+//|	      ___           ___           ___           ___           ___            |
+//|	     /\  \         /\  \         /\  \         /|  |         /\  \           |
+//|	    |::\  \       /::\  \       /::\  \       |:|  |        /::\  \          |
+//|	    |:|:\  \     /:/\:\  \     /:/\:\  \      |:|  |       /:/\:\  \         |
+//|	  __|:|\:\  \   /:/  \:\  \   /:/  \:\  \   __|:|  |      /:/ /::\  \        |
+//|	 /::::|_\:\__\ /:/__/ \:\__\ /:/__/ \:\__\ /\ |:|__|____ /:/_/:/\:\__\       |
+//|	 \:\--\  \/__/ \:\  \ /:/  / \:\  \ /:/  / \:\/:::::/__/ \:\/:/  \/__/       |
+//|	  \:\  \        \:\  /:/  /   \:\  /:/  /   \::/__/       \::/__/            |
+//|	   \:\  \        \:\/:/  /     \:\/:/  /     \:\  \        \:\  \            |
+//|	    \:\__\        \::/  /       \::/  /       \:\__\        \:\__\           |
+//|	     \/__/         \/__/         \/__/         \/__/         \/__/           |
+//| ================================================================================ |
+//|   Script Desenvolvido Por Mooka | eAthena | Por Favor, Não Retire Os Créditos.   |
+//| ================================================================================ |
+-	script	GM_setvar	-1,{
+OnWhisperVar:
+	if(getgmlevel()<99) end;
+	set .userRID,getcharid(3);
+	mes "[ GM Var Function ]";
+	mes "Que tipo de variável deseja setar?";
+	mes "Em seguida, insira o novo valor";
+	if(select("String(Letras):Integer(Números)")==1) input .newValue$; else input .newValue;
+	set @menu,.selectoption;
+	mes "Insira o nome da variável alvo.";
+	input .varNameTarget$;
+	mes "Agora você deverá inserir o nome do player.";
+	mes "Deseja continuar?";
+	if(select("Sim:Não")==2) close;
+	input .targetName$;
+		if(!attachrid(getcharid(3,.targetName$)))
+		{
+		attachrid(getcharid(3,.userRID)); // ???
+		mes "Nome incorreto ou personagem não existe.";
+		close;
+		} 
+	if(.selectoption==1) setd .varNameTarget$,.newValue$; else setd .varNameTarget$,.newValue;
+	attachrid(getcharid(3,.userRID));
+	mes "[ GM Var Function ]";
+	mes "Variável setada com sucesso!";
+	mes "Novo valor da variável "+.varNameTarget$+" do player "+rid2name(.targetName$)+" :";
+	if(@menu==1)mes "String: "+.newValue$;
+	if(@menu==2)mes "Integer: "+.newValue;
+	close;
+}

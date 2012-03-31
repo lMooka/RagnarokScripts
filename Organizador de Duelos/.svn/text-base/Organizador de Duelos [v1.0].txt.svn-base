@@ -1,0 +1,330 @@
+//|==================================================================================|
+//|	      ___           ___           ___           ___           ___            |
+//|	     /\  \         /\  \         /\  \         /|  |         /\  \           |
+//|	    |::\  \       /::\  \       /::\  \       |:|  |        /::\  \          |
+//|	    |:|:\  \     /:/\:\  \     /:/\:\  \      |:|  |       /:/\:\  \         |
+//|	  __|:|\:\  \   /:/  \:\  \   /:/  \:\  \   __|:|  |      /:/ /::\  \        |
+//|	 /::::|_\:\__\ /:/__/ \:\__\ /:/__/ \:\__\ /\ |:|__|____ /:/_/:/\:\__\       |
+//|	 \:\--\  \/__/ \:\  \ /:/  / \:\  \ /:/  / \:\/:::::/__/ \:\/:/  \/__/       |
+//|	  \:\  \        \:\  /:/  /   \:\  /:/  /   \::/__/       \::/__/            |
+//|	   \:\  \        \:\/:/  /     \:\/:/  /     \:\  \        \:\  \            |
+//|	    \:\__\        \::/  /       \::/  /       \:\__\        \:\__\           |
+//|	     \/__/         \/__/         \/__/         \/__/         \/__/           |
+//| ================================================================================ |
+//|   Script Desenvolvido Por Mooka | eAthena | Por Favor, Não Retire Os Créditos.   |
+//| ================================================================================ |
+//|-> NPC dos prêmios (Desativei porque muito servers usam esse sistema como donate).|
+//|-> Leia a nota abaixo no script para saber como alterar o prêmio.		     |
+//| prontera,146,236,5	cashshop	[Prêmios] T. Pontos	878,12260:1000,5277:900,5227:750,5228:750,5229:750,5235:750,5236:750,5237:750,5270:500,12202:60,12203:60,12204:60,12205:60,12206:60,12207:60,12208:60
+//| ================================================================================ |
+
+prontera,144,229,5	script	Organizador de Duelos	873,{
+
+
+	mes "[Organizador de Duelos]";
+	mes "Seja bem vindo ao Evento de party!";
+	mes "Aqui você pode organizar duelos com outras party's.";
+	mes "Gostaria de participar?";
+	next;
+	if(select("Sim, por favor!:Não, obrigado.")==2) close;
+	next;
+	mes "[Organizador de Duelos]";
+	mes "Qual time gostaria de entrar?";
+	if(select("Gostaria de entrar no Time 1:Gostaria de entrar no Time 2")==1) warp "quiz_02",133,347; else warp "quiz_02",161,348;
+	close;
+
+	}
+
+-	script	DuelPartyEvent	-1,{
+
+OnPCKillEvent:
+	getmapxy(@map$,@x,@y,0);
+	if(@map$!="quiz_02") end;
+		switch(@DuelType) // callfunc("FunctionDuel",3,"XvsX",x,y,x2,x2,party 1|2,type);
+		{
+	case 3:
+		if(!$@duelStatus_3vs3) end;
+		set @PID_1,getvariableofnpc(.duelPartyID,"3vs3#1");
+		set @PID_2,getvariableofnpc(.duelPartyID,"3vs3#2");
+		if(getcharid(1)==@PID_1) callfunc "FunctionDuel",3,"3vs3",222,391,262,357,1,3;
+		if(getcharid(1)==@PID_2) callfunc "FunctionDuel",3,"3vs3",222,391,262,357,2,3;
+		callfunc("FunctionDuel",3,"3vs3",20,389,71,362,3,1);
+
+	case 5:
+		if(!$@duelStatus_5vs5) end;
+		set @PID_1,getvariableofnpc(.duelPartyID,"5vs5#1");
+		set @PID_2,getvariableofnpc(.duelPartyID,"5vs5#2");
+		if(getcharid(1)==@PID_1) callfunc "FunctionDuel",3,"5vs5",122,391,173,336,1,5;
+		if(getcharid(1)==@PID_2) callfunc "FunctionDuel",3,"5vs5",122,391,173,336,2,5;
+		callfunc("FunctionDuel",3,"5vs5",122,391,173,336,3,1);
+
+	case 8:
+		if(!$@duelStatus_8vs8) end;
+		set @PID_1,getvariableofnpc(.duelPartyID,"8vs8#1");
+		set @PID_2,getvariableofnpc(.duelPartyID,"8vs8#2");
+		if(getcharid(1)==@PID_1) callfunc "FunctionDuel",3,"8vs8",20,389,71,362,1,8;
+		if(getcharid(1)==@PID_2) callfunc "FunctionDuel",3,"8vs8",20,389,71,362,2,8;
+		callfunc("FunctionDuel",3,"8vs8",20,389,71,362,3,1);
+		}
+}
+
+function	script	FunctionDuel	{
+
+	switch(getarg(0))
+	{
+
+case 1: //callfunc("FunctionDuel",<Function>,<CordX>,<CordY>,<CordX2>,<CordY2>,"XvsX");
+
+	Areaannounce "quiz_02",getarg(1),getarg(2),getarg(3),getarg(4),"O Duelo irá começar em 5 segundos!",bc_map,0xFFDEAD;
+	sleep2 1000;
+	Areaannounce "quiz_02",getarg(1),getarg(2),getarg(3),getarg(4),"O Duelo irá começar em 4 segundos!",bc_map,0xFFDEAD;
+	sleep2 1000;
+	Areaannounce "quiz_02",getarg(1),getarg(2),getarg(3),getarg(4),"O Duelo irá começar em 3 segundos!",bc_map,0xFFDEAD;
+	sleep2 1000;
+	Areaannounce "quiz_02",getarg(1),getarg(2),getarg(3),getarg(4),"O Duelo irá começar em 2 segundos!",bc_map,0xFFDEAD;
+	sleep2 1000;
+	Areaannounce "quiz_02",getarg(1),getarg(2),getarg(3),getarg(4),"O Duelo irá começar em 1 segundos!",bc_map,0xFFDEAD;
+	sleep2 1000;
+	Areaannounce "quiz_02",getarg(1),getarg(2),getarg(3),getarg(4),"O Duelo foi iniciado! [ Party: "+getpartyname(getvariableofnpc(.duelPartyID,getarg(5)+"#1"))+" VS "+getpartyname(getvariableofnpc(.duelPartyID,getarg(5)+"#2"))+" ] ",bc_map,0xFFDEAD;
+	return;
+
+case 2: //callfunc("FunctionDuel",<Function>,"XvsX",<Time>,<CordX>,<CordY>,<CordX2>,<CordY2>);
+
+		if(getd("$@Duel_"+getarg(1)+"_1")+getd("$@Duel_"+getarg(1)+"_2")==2)
+		{
+		if(!getd("$@TimeDuel"+getarg(1))) setd "$@TimeDuel"+getarg(1),6;
+		setd "$@TimeDuel"+getarg(1),getd("$@TimeDuel"+getarg(1))-1;
+			if(!getd("$@TimeDuel"+getarg(1)))
+			{
+			setd "$Duel_"+getarg(1)+"_1",0;
+			setd "$Duel_"+getarg(1)+"_2",0;
+			stopnpctimer;
+			waitingroom getarg(1)+" - Time "+getarg(2),5,getarg(1)+"#"+getarg(2)+"::OnStart",1;
+			Areaannounce "quiz_02",getarg(3),getarg(4),getarg(5),getarg(6),"Duelo finalizado! Nenhum vencedor.",bc_map,0xFFDEAD;
+			deletearray getd("$@"+getarg(1)+"MemberName_1$[0]"),8;
+			deletearray getd("$@"+getarg(1)+"MemberName_2$[0]"),8;
+			end;
+			}
+		Areaannounce "quiz_02",getarg(3),getarg(4),getarg(5),getarg(6),"O Duelo terminará em "+$@TimeDuel5vs5+" minuto(s).",bc_map,0xFFDEAD;
+		end;
+		} return;
+
+case 3: //callfunc("FunctionDuel",3,"XvsX",x,y,x2,x2,party 1|2,type);
+
+		if(getarg(6)==3)
+		{
+		dispbottom "Você foi retirado da arena por não pertencer a nenhuma party.";
+		Areaannounce "quiz_02",getarg(2),getarg(3),getarg(4),getarg(5),"[Organizador] Duelo foi encerrado por infração da regra. Um membro saiu da sua party. [Player: "+strcharinfo(0)+"]",bc_map,0xFFDEAD;
+		goto Cancel;
+		}
+			for(set @i,5;@i>=5;set @i,@i-1)
+			{
+				if(rid2name(killedrid)==getd("$@"+getarg(1)+"MemberName_"+getarg(1)+"$["+@i+"]"))
+				{
+				Areaannounce "quiz_02",getarg(2),getarg(3),getarg(4),getarg(5),"[Organizador] Duelo foi encerrado por infração da regra. Um membro trocou de party. [Player: "+rid2name(killedrid)+"]",bc_map,0xFFDEAD;
+				goto Cancel;
+				}
+			}
+	setd "$@"+getarg(1)+"Count"+getarg(6),getd("$@"+getarg(1)+"Count"+getarg(6))+1;
+	Areaannounce "quiz_02",getarg(2),getarg(3),getarg(4),getarg(5),"[Organizador] "+rid2name(killedrid)+" foi morto por "+strcharinfo(0)+"["+strcharinfo(1)+"].",bc_map,0xFFDEAD;
+	sleep2 1500;
+	warpchar "SavePoint",0,0,getcharid(0,rid2name(killedrid));
+				if(getd("$@"+getarg(1)+"Count"+getarg(6))==getarg(7))
+				{
+				Areaannounce "quiz_02",getarg(2),getarg(3),getarg(4),getarg(5),"[Organizador] Time "+getarg(6)+" venceu a batalha! Parabéns!",bc_map,0xFFDEAD;
+					for(setd ".@i"+getarg(1),getarg(7);getd(".@i"+getarg(1))>0;setd ".@i"+getarg(1),getd(".@i"+getarg(1))-1)
+					{
+					if(!attachrid(getcharid(3,getd("$@"+getarg(1)+"MemberName_"+getarg(6)+"$[.@i"+getarg(1)+"]")))) continue;
+					dispbottom "[Organizador] Você ganhou "+@DuelType+" pontos! [Total: "+#KAFRAPOINTS+"]";
+
+					// PRÊMIO ALTERE SE QUISER.
+					set #KAFRAPOINTS,#KAFRAPOINTS+@DuelType;
+					}
+goto Cancel;
+				} end;
+	}
+
+OnWhisperGlobal:
+if(getgmlevel()<99) end;
+Cancel:
+		setd "$@"+getarg(1)+"Count1",0;
+		setd "$@"+getarg(1)+"Count2",0;
+		setd "$@duelStatus_"+getarg(1),0;
+		setd "$@"+getarg(1)+"duelStatus",0;
+		for(set @i,getarg(7);@i>=0;set @i,@i-1) warpchar "SavePoint",0,0,getcharid(0,getd("$@"+getarg(1)+"MemberName_1$[@i"+getarg(1)+"]"));
+		for(set @i,getarg(7);@i>=0;set @i,@i-1) warpchar "SavePoint",0,0,getcharid(0,getd("$@"+getarg(1)+"MemberName_2$[@i"+getarg(1)+"]"));
+		addtimer 1,"5vs5#1::OnChatInit";
+		addtimer 1,"5vs5#2::OnChatInit";
+}
+
+quiz_02,133,357,5	script	Organizador::5vs5#1	873,{
+
+		if($@duelStatus_5vs5)
+		{
+		mes "[^FFDEADOrganizador^000000]";
+		mes "No momento não posso troca você de lado.";
+		close;
+		}
+	mes "[^FFDEADOrganizador^000000]";
+	mes "Gostaria de ir para o outro lado?";
+	if(select("Sim, por favor.:Não, obrigado.")==1) warp "quiz_02",161,348;
+	close;
+
+OnStart:
+	if(!getcharid(1))
+	{
+	dispbottom "Você deve possuir uma party para participar.";
+	warp "quiz_02",133,347;
+	end;
+	}
+		if(getcharid(1)==getvariableofnpc(.duelPartyID,"5vs5#2"))
+		{
+		dispbottom "Sua Party já está ocupando um chat.";
+		warp "quiz_02",133,347;
+		end;
+		}	
+			if(getwaitingroomstate(0)==1)
+			{
+			set .duelPartyID,getcharid(1);
+			dispbottom "Você tem 1 minuto para chamar sua party.";
+			initnpctimer;
+			setnpctimer 0;
+			} if(getcharid(1)!=.duelPartyID) warp "quiz_02",133,347;
+	set @DuelType,5;
+	set $@5vs5MemberName_1$[getwaitingroomstate(0)-1],strcharinfo(0);
+	if(getwaitingroomstate(0)!=1) end;
+	set $@Duel_5vs5_1,1;
+	setnpctimer 0;
+	delwaitingroom;
+	Areaannounce "quiz_02",122,391,173,336,"[Organizador] Time 1 está pronto!",bc_map,0xFFDEAD;
+	setcell "quiz_02",132,369,137,364,0,0;
+	for(set .@i,5;.@i>=0;set .@i,.@i-1) warpchar "quiz_02",rand(132,137),rand(369,364),getcharid(0,$@5vs5MemberName_1$[.@i]);
+		if($@Duel_5vs5_2)
+		{
+		callfunc("FunctionDuel",1,122,391,173,336,"5vs5");
+		setcell "quiz_02",132,369,137,364,0,1;
+		setcell "quiz_02",157,370,163,364,0,1;
+		set $@duelStatus_5vs5,1;
+		set $@Duel_5vs5_1,0;
+		set $@Duel_5vs5_2,0;
+		set $@5vs5Count1,0;
+		set $@5vs5Count2,0;
+		setnpctimer 0;
+		initnpctimer;
+		} end;
+
+OnTimer180000:
+		if($@duelStatus_5vs5)
+		{
+		Areaannounce "quiz_02",122,391,173,336,"[Organizador] Duelo cancelado. Tempo limite esgotado. (3 Minutos)",bc_map,0xFFDEAD;
+		donpcevent "DuelPartyEvent::Cancel";
+		} end;
+OnTimer60000:
+	if(getwaitingroomstate(0)) Areaannounce "quiz_02",122,359,145,336,"[Organizador] Inscrição do Duelo Time 1 liberado.",bc_map,0xFFDEAD;
+	warpwaitingpc "quiz_02",133,347,1;
+	stopnpctimer;
+	end;
+
+OnChatInit:
+OnInit:
+set .duelPartyID,0;
+waitingroom "5vs5 - Time 1",5,"5vs5#1::OnStart",1;
+setcell "quiz_02",122,359,145,336,4,1;
+}
+
+quiz_02,161,357,5	script	Organizador::5vs5#2	873,{
+
+		if($@duelStatus_5vs5)
+		{
+		mes "[^FFDEADOrganizador^000000]";
+		mes "No momento não posso troca você de lado.";
+		close;
+		}
+	mes "[^FFDEADOrganizador^000000]";
+	mes "Gostaria de ir para o outro lado?";
+	if(select("Sim, por favor.:Não, obrigado.")==1) warp "quiz_02",133,347;
+	close;
+
+OnStart:
+
+	if(!getcharid(1))
+	{
+	dispbottom "Você deve possuir uma party para participar.";
+	warp "quiz_02",161,348;
+	end;
+	}
+		if(getcharid(1)==getvariableofnpc(.duelPartyID,"5vs5#1"))
+		{
+		dispbottom "Sua Party já está ocupando um chat.";
+		warp "quiz_02",133,347;
+		end;
+		}
+			if(getwaitingroomstate(0)==1)
+			{
+			set .duelPartyID,getcharid(1);
+			dispbottom "Você tem 1 minuto para sua party entrar.";
+			initnpctimer;
+			setnpctimer 0;
+			} if(getcharid(1)!=.duelPartyID) warp "quiz_02",161,348;
+	set @DuelType,5;
+	set $@5vs5MemberName_2$[getwaitingroomstate(0)-1],strcharinfo(0);
+	if(getwaitingroomstate(0)!=1) end;
+	set $@Duel_5vs5_2,1;
+	setnpctimer 0;
+	delwaitingroom;
+	setcell "quiz_02",158,370,163,364,0,0;
+	Areaannounce "quiz_02",122,391,173,336,"[Organizador] Time 2 está pronto!",bc_map,0xFFDEAD;
+	for(set .@i,5;.@i>=0;set .@i,.@i-1) warpchar "quiz_02",rand(158,163),rand(369,364),getcharid(0,$@5vs5MemberName_2$[.@i]);
+		if($@Duel_5vs5_1)
+		{
+		callfunc("FunctionDuel",1,122,391,173,336,"5vs5");
+		setcell "quiz_02",131,370,137,364,0,1;
+		setcell "quiz_02",158,370,163,364,0,1;
+		set $@duelStatus_5vs5,1;
+		set $@Duel_5vs5_1,0;
+		set $@Duel_5vs5_2,0;
+		set $@5vs5Count1,0;
+		set $@5vs5Count2,0;
+		setnpctimer 0,"5vs5#1";
+		initnpctimer "5vs5#1";
+		} end;
+
+OnTimer60000:
+	if(getwaitingroomstate(0)) Areaannounce "quiz_02",122,359,145,336,"[Organizador] Inscrição do Duelo Time 2 liberado.",bc_map,0xFFDEAD;
+	warpwaitingpc "quiz_02",rand(158,163),rand(369,364),1;
+	end;
+
+
+OnInit:
+OnChatInit:
+set .duelPartyID,0;
+waitingroom "5vs5 - Time 2",5,"5vs5#2::OnStart",1;
+setcell "quiz_02",150,356,173,336,4,1;
+
+}
+
+quiz_02,133,347,0	script	Touch_5vs5#1	-1,13,13,{
+
+OnTouch:
+percentheal 100,100;
+sc_start 30,120000,10;
+sc_start 32,120000,10;
+skilleffect 34,0;
+skilleffect 29,0;
+}
+
+quiz_02,161,348,0	script	Touch_5vs5#2	-1,13,13,{
+
+OnTouch:
+percentheal 100,100;
+sc_start 30,120000,10;
+sc_start 32,120000,10;
+skilleffect 34,0;
+skilleffect 29,0;
+}
+
+quiz_02	mapflag	pvp	on
+quiz_02	mapflag	nowarp
+quiz_02	mapflag	nowarpto
+quiz_02	mapflag	nobranch
+quiz_02	mapflag	nomemo

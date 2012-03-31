@@ -1,0 +1,526 @@
+//|==================================================================================|
+//|	      ___           ___           ___           ___           ___            |
+//|	     /\  \         /\  \         /\  \         /|  |         /\  \           |
+//|	    |::\  \       /::\  \       /::\  \       |:|  |        /::\  \          |
+//|	    |:|:\  \     /:/\:\  \     /:/\:\  \      |:|  |       /:/\:\  \         |
+//|	  __|:|\:\  \   /:/  \:\  \   /:/  \:\  \   __|:|  |      /:/ /::\  \        |
+//|	 /::::|_\:\__\ /:/__/ \:\__\ /:/__/ \:\__\ /\ |:|__|____ /:/_/:/\:\__\       |
+//|	 \:\--\  \/__/ \:\  \ /:/  / \:\  \ /:/  / \:\/:::::/__/ \:\/:/  \/__/       |
+//|	  \:\  \        \:\  /:/  /   \:\  /:/  /   \::/__/       \::/__/            |
+//|	   \:\  \        \:\/:/  /     \:\/:/  /     \:\  \        \:\  \            |
+//|	    \:\__\        \::/  /       \::/  /       \:\__\        \:\__\           |
+//|	     \/__/         \/__/         \/__/         \/__/         \/__/           |
+//| ================================================================================ |
+//|   Script Desenvolvido Por Mooka | eAthena | Por Favor, Não Retire Os Créditos.   |
+//| ================================================================================ |
+//| 		Observação! O MapFlag Está No Final Do Script !			     |
+//| ================================================================================ |
+
+-	script	CTF_INIT	-1,{
+OnInit:
+setarray $@CTF_AnncColor$,"0xff6346","0x6495ed";
+setarray $@CTF_TeamNames$,"Vermelho","Azul";
+set $@CTF_name$,"^0000cd[^1e90ff Capture the Flag ^0000cd]^000000";
+set $@CTF_minLvGM,80;
+set $@PlayerFLagSpeed,175;
+
+//deletearray $CTF_AwardIDAmount,10;
+//deletearray $CTF_PointsToWin,10;
+//deletearray $CTF_MaxPlayers,10;
+}
+
+// NOTA: Todas as variáveis com "[]" abaixo são arrays, sendo [0] para o time vermelho, e [1] para o time Azul.
+
+// $@CTF_Status = O evento está ativado? Sim = 1;
+// $@PlayerFLagSpeed = Velocidade o que o player com a bandeira terá.
+// $@CTF_FlagOwned[] = Player com bandeira do time (CID)
+// $@CTF_CapturedFlag[] = Bandeira foi roubada? Sim = 1; 
+// $@CTF_EventPlayers = Quantidade de players participando do Evento.
+// $CTF_PointsToWin = Quantidade de Pontos para vencer o evento.
+// $@CTF_PlayersAID/2 = Array com AID dos participantes.
+// $@CTF_TeamPoints[] = Pontos do Time.
+// $@CTF_FlagDroped[] = Bandeira dropada? Sim = 1;
+// $CTF_AwardIDAmount[] = [0] ID do prêmio; [1] Quantidade a ser entregue;
+// $CTF_MaxPlayers = Quantidade máxima de participantes.
+
+
+prontera,147,170,5	script	[CTF] Assistente	966,{
+
+	if(getgmlevel() >= $@CTF_minLvGM) goto AdminCTF;
+Inicio:
+	while(1)
+	{
+	mes $@CTF_name$;
+			if(!$@CTF_Status)
+			{
+			mes "O Evento Capture The Flag está desligado!";
+			mes "Você não pode entrar, aguarde ele ser inciado.";
+			close;
+			}
+	mes "Olá, ^0000cd"+strcharinfo(0)+"^000000! Bem Vindo ao Evento ^1e90ffCapture The Flag^000000!";
+	mes "Gostaria de participar?";
+		switch(select("- Sim, Eu Quero Participar!:- Ainda Não, Como Funciona?:- Não Quero!"))
+		{
+	case 1:
+		if($@CTF_EventPlayers >= $CTF_MaxPlayers)
+		{
+		mes $@CTF_name$;
+		mes "Desculpe, mas o evento já está com a capacidade máxima de jogadores!";
+		mes "Tente de novo na próxima!";
+		close;
+		} set $@CTF_EventPlayers,$@CTF_EventPlayers+1;
+			if(.LastToCome) 
+			{
+			set .LastToCome,0;
+			set @CTF_Team,0;
+			deletearray @HaveFlag;
+			setlook 7,79;
+			mapannounce "bat_b01","["+strcharinfo(0)+"] Entrou no time Vermelho!",bc_map,$@CTF_AnncColor$[@CTF_Team];
+			announce "[--- Você entrou no time Vermelho ---]",bc_self,$@CTF_AnncColor$[@CTF_Team];
+			warp "bat_b01",88,74;
+			savepoint "bat_b01",88,74;
+			close;
+			}
+		set .LastToCome,1;
+		set @CTF_Team,1;
+		deletearray @HaveFlag;
+		setlook 7,78;
+		mapannounce "bat_b01","["+strcharinfo(0)+"] Entrou no time Azul!",bc_map,$@CTF_AnncColor$[@CTF_Team];
+		announce "[--- Você entrou no time Azul ---]",bc_self,$@CTF_AnncColor$[@CTF_Team];
+		warp "bat_b01",312,224;
+		savepoint "bat_b01",312,224;
+		close;
+
+	case 2:
+		next;
+		mes $@CTF_name$;
+		mes "Capture The Flag - Capture a Bandeira.";
+		mes "^9932cc- Objetivo -^000000";
+		mes "O Evento funciona baseado em dois times, tendo como objetivo capturar a bandeira do outro.";
+		next;
+		mes $@CTF_name$;
+		mes "^9932cc- Regras/Instruções -^000000";
+		mes "1. Você não pode matar alguém do seu time. Caso faça, será retirado do evento. Para isso não acontecer organize uma party.";
+		next;
+		mes $@CTF_name$;
+		mes "^9932cc- Regras/Instruções -^000000";
+		mes "2. Ao capturar uma bandeira, você deve correr direto para a sua base.";
+		mes "2-1. Sua velocidade será diminuida e não poderá usar items para ficar mais rápido.";
+		mes "2-2. As skills Passo Etéreo e Salto tem o uso bloqueado no mapa.";
+		next;
+		mes $@CTF_name$;
+		mes "^9932cc- Regras/Instruções -^000000";
+		mes "3. Ao morrer, você irá voltar a base do seu time. Caso esteja com a bandeira ela ficará no local.";
+		mes "3-1. Se alguém do seu time pegar a bandeira novamente poderá continuar o percuso até sua base.";
+		mes "3-2. Caso alguém do time adversário pegue a bandeira, ela voltará para a base do mesmo.";
+		next; 
+		mes $@CTF_name$;
+		mes "^9932cc- Regras/Instruções -^000000";
+		mes "4. Somente quem marcou 1 ponto no time(capturou a bandeira do adversário) irá ter direito de receber o Prêmio se o time ganhar.";
+		next; continue;
+
+	case 3:
+		close;
+		}
+
+
+
+AdminCTF:
+		if(!$CTF_PointsToWin && getgmlevel()<98 || !$CTF_MaxPlayers && getgmlevel()<98 || getarraysize($CTF_AwardIDAmount)<2 && getgmlevel()<98)
+		{
+		mes $@CTF_name$;
+		mes "Configurações não definidas, você deve pedir ao Administrador para configurá-las.";
+		continue;
+		}
+
+		if(!$CTF_PointsToWin && getgmlevel()>=99)
+		{
+PointsToWin:
+		mes $@CTF_name$;
+		mes "Por favor, defina os pontos necessários para vencer o evento.";
+		input @value;
+		if(@value < 1) goto PointsToWin;
+		set $CTF_PointsToWin,@value;
+		mes "Valor definido. ("+$CTF_PointsToWin+")";
+		}
+
+		if(!$CTF_MaxPlayers && getgmlevel()>=99)
+		{
+MaxPlayers:
+		mes $@CTF_name$;
+		mes "Por favor, defina a quantidade máxima de players no evento.";
+		input @value;
+		if(@value < 2) goto MaxPlayers;
+		set $CTF_MaxPlayers,@value;
+		mes "Valor definido. ("+$CTF_MaxPlayers+")";
+		}
+
+		if(getarraysize($CTF_AwardIDAmount)<2 && getgmlevel()>=99)
+		{
+AwardIdAmount:
+		mes $@CTF_name$;
+		mes "Por favor, defina o prêmio.";
+		input @value;
+		if(@value < 607)
+		mes "Digite a quantidade:";
+		input @value2;
+		if(@value2 < 1) goto AwardIdAmount;
+		set $CTF_AwardIDAmount,@value;
+		set $CTF_AwardIDAmount[1],@value2;
+		mes "Novo valor definido.";
+		mes "ID: "+$CTF_AwardIDAmount+" ("+getitemname($CTF_AwardIDAmount)+")";
+		mes "Quantidade: "+$CTF_AwardIDAmount[1];
+		}
+
+	while(1)
+	{
+	mes $@CTF_name$;
+	mes "Olá, o que deseja fazer?";
+	switch(select("Ativar/Desligar Evento:Configurar CTF:Sair"))
+	{
+case 1:
+		if(!$@CTF_Status)
+		{
+			if(select("Ativar Evento.:Sair.")==2) continue;
+		announce "[Capture The Flag] O Evento Foi Ativado! A partida começará em 5 minutos!",8;
+		set $@CTF_Status,1;
+		enablenpc "CTF_Event";
+		enablenpc "CTF_flag#Red";
+		enablenpc "CTF_flag#Blue";
+		setcell "bat_b01",295,229,299,222,cell_walkable,0;
+		setcell "bat_b01",334,184,339,191,cell_walkable,0;
+		setcell "bat_b01",244,189,247,182,cell_walkable,0;
+		setcell "bat_b01",65,117,60,110,cell_walkable,0;
+		setcell "bat_b01",100,77,108,70,cell_walkable,0;
+		setcell "bat_b01",152,119,155,110,cell_walkable,0;
+		initnpctimer;
+		next; continue;
+		} if(select("Desligar Evento.:Sair.")==2) continue;
+	mes "Deseja avisar que o evento foi fechado?";
+	if(select("Sim:Não")==1) announce "[Capture The Flag] O Evento Terminou!",8;
+	mapwarp "bat_b01","prontera",150,150;
+OnDisableCTF:
+	set $@CTF_Status,0;
+	disablenpc "CTF_Event";
+	disablenpc "CTF_flag#Red";
+	disablenpc "CTF_flag#Blue";
+	disablenpc "warp_base#Red";
+	disablenpc "warp_base#Red2";
+	disablenpc "warp_base#Blue";
+	disablenpc "warp_base#Blue2";
+	deletearray $@CTF_CapturedFlag,2;
+	deletearray $@CTF_FlagOwned,2;
+	deletearray $@CTF_TeamPoints,2;
+	deletearray $@CTF_FlagDroped,2;
+	deletearray $@PlayersDidPoints,$CTF_PointsToWin;
+	deletearray $@PlayersDidPoints2,$CTF_PointsToWin;
+	setcell "bat_b01",295,229,299,222,cell_walkable,1;
+	setcell "bat_b01",334,184,339,191,cell_walkable,1;
+	setcell "bat_b01",244,189,247,182,cell_walkable,1;
+	setcell "bat_b01",65,117,60,110,cell_walkable,1;
+	setcell "bat_b01",100,77,108,70,cell_walkable,1;
+	setcell "bat_b01",152,119,155,110,cell_walkable,1;
+	stopnpctimer;
+	if(@c) end;
+	next; continue;
+
+case 2:
+	if(getgmlevel()<98)
+	{
+	mes $@CTF_name$;
+	mes "Você não pode usar esta função.";
+	next; continue;
+	}
+		switch(select("Alterar Pontos Para Vitória:Alterar Número Máximo De Players:Alterar Prêmio:Voltar"))
+		{
+	case 1:
+		next;
+		mes $@CTF_name$;
+		mes "O número atual de pontos necessários para vencer é de "+$CTF_PointsToWin;
+		mes "Digite o novo valor: (0 Para cancelar)";
+		input @value;
+		if(@value < 1) { mes "Ação cancelada."; next; continue; }
+		set $CTF_PointsToWin,@value;
+		mes "Novo valor definido. ("+$CTF_PointsToWin+")";
+		next; continue;
+
+	case 2:
+		next;
+		mes $@CTF_name$;
+		mes "O número atual máximo de jogadores na arena é "+$CTF_MaxPlayers;
+		mes "Digite o novo valor: (0 Para cancelar)";
+		input @value;
+		if(@value < 2) { mes "Ação cancelada."; next; continue; }
+		set $CTF_MaxPlayers,@value;
+		mes "Novo valor definido. ("+$CTF_MaxPlayers+")";
+		next; continue;
+
+	case 3:
+		next;
+		mes $@CTF_name$;
+		mes "ID do Prêmio atual: "+$CTF_AwardIDAmount+" ("+getitemname($CTF_AwardIDAmount)+")";
+		mes "Quantidade: "+$CTF_AwardIDAmount[1];
+		mes "Digite o ID do item: (0 Para cancelar)";
+		input @value;
+		if(@value < 607) { mes "Ação cancelada."; next; continue; }
+		mes "Digite a quantidade: (0 Para cancelar)";
+		input @value2;
+		if(@value2 < 1) { mes "Ação cancelada."; next; continue; }
+		set $CTF_AwardIDAmount,@value;
+		set $CTF_AwardIDAmount[1],@value2;
+		mes "Novo valor definido.";
+		mes "ID: "+$CTF_AwardIDAmount+" ("+getitemname($CTF_AwardIDAmount)+")";
+		mes "Quantidade: "+$CTF_AwardIDAmount[1];
+		next; continue;
+	case 4:
+		next; continue;
+		}
+
+case 3:
+	next; goto Inicio;
+	}
+	}
+	} 
+
+OnInit:
+	waitingroom "Capture The Flag",0;
+	end;
+
+OnTimer60000:
+	announce "[Capture The Flag] A partida começará em 4 minutos!",8;
+	end;
+OnTimer120000:
+	announce "[Capture The Flag] A partida começará em 3 minutos!",8;
+	end;
+OnTimer180000:
+	announce "[Capture The Flag] A partida começará em 2 minutos!",8;
+	end;
+OnTimer240000:
+	announce "[Capture The Flag] A partida começará em 1 minuto!",8;
+	end;
+OnTimer300000:
+	announce "[Capture The Flag] A partida começou!",8;
+	enablenpc "warp_base#Red";
+	enablenpc "warp_base#Red2";
+	enablenpc "warp_base#Blue";
+	enablenpc "warp_base#Blue2";
+	stopnpctimer;
+}
+
+bat_b01,337,193,5	warp	warp_base#Blue	4,4,bat_b01,336,181
+bat_b01,62,108,5	warp	warp_base#Red	4,4,bat_b01,63,120
+bat_b01,249,184,5	warp	warp_base#Blue2	4,4,bat_b01,242,180
+bat_b01,149,113,5	warp	warp_base#Red2	4,4,bat_b01,157,119
+
+prontera,150,150,5	script	UnsetSavePoint#CTF	-1,4,4,{
+OnTouch:
+if(getsavepoint(0)=="bat_b01") savepoint "prontera",155,193;
+}
+
+-	script	CTF_Event	-1,{
+
+OnInit:
+	disablenpc "warp_base#Red";
+	disablenpc "warp_base#Red2";
+	disablenpc "warp_base#Blue";
+	disablenpc "warp_base#Blue2";
+	disablenpc "CTF_Event";
+//	disablenpc "UnsetSavePoint#CTF";
+	end;
+
+OnPCDieEvent:
+	getmapxy(@map$,@x,@y,0);
+	if(@map$!="bat_b01") end;
+	callfunc("CTF_func","dropFlag");
+	set .@LastCTF_Team,@CTF_Team;
+	attachrid(killerrid);
+	if(.@LastCTF_Team!=@CTF_Team) end;
+	set @killedFriend,@killedFriend+1;
+	if(@killedFriend<2) { announce "["+strcharinfo(0)+"] Matou um parceiro! Na próxima você será retirado do evento!",bc_map,$@CTF_AnncColor$[@CTF_Team]; end; }
+	announce "["+strcharinfo(0)+"] Matou um parceiro pela 2ª vez e foi retirado do evento!",bc_map,$@CTF_AnncColor$[@CTF_Team];
+	warp "prontera",150,150;
+	end;
+
+OnPCLogoutEvent:
+	getmapxy(@map$,@x,@y,0);
+	if(@map$!="bat_b01") end;
+	set $CTF_MaxPlayers,$CTF_MaxPlayers-1;
+	callfunc("CTF_func","dropFlag");
+	
+	
+}
+
+
+bat_b01,62,149,5	script	Bandeira Vermelha::CTF_flag#Red	722,1,1,{ //vermelho 0
+
+	end;
+OnInit:
+	disablenpc "CTF_flag#Red";
+	end;
+
+OnTouch:
+		if(@HaveFlag[1] && !@CTF_Team && distance(62,149,@x,@y)<=5) callfunc("CTF_func","getPoint",1);
+		if($@CTF_FlagDroped[0]==1)
+		{
+			if(@CTF_Team==0)
+			{
+			announce "["+strcharinfo(0)+"] Recuperou a bandeira Vermelha!",bc_map,$@CTF_AnncColor$[@CTF_Team];
+			set $@CTF_FlagDroped[0],0;
+			movenpc "CTF_flag#Red",62,149;		
+			} else	{
+				//announce "["+strcharinfo(0)+"] Pegou a bandeira Vermelha do chão!",bc_map,$@CTF_AnncColor$[@CTF_Team];
+				set $@CTF_FlagDroped[0],0;
+				set $@CTF_FlagOwned[0],1;
+				set @HaveFlag[0],1;
+				callfunc("CTF_func","getFlag",0);
+				} end;
+		}
+	if($@CTF_FlagOwned[0] || !@CTF_Team) end;
+	set $@CTF_FlagOwned[0],1;
+	set @HaveFlag[0],1;
+	callfunc("CTF_func","getFlag",0);
+	end;
+}
+
+bat_b01,329,149,5	script	Bandeira Azul::CTF_flag#Blue	722,1,1,{ // AZUL 1
+
+	end;
+OnInit:
+	disablenpc "CTF_flag#Blue";
+	end;
+
+OnTouch:
+		if(@HaveFlag[0] && @CTF_Team && distance(329,149,@x,@y)<=5) callfunc("CTF_func","getPoint",0);
+		if($@CTF_FlagDroped[1]==1)
+		{
+			if(@CTF_Team==1)
+			{
+			announce "["+strcharinfo(0)+"] Recuperou a bandeira Azul!",bc_map,$@CTF_AnncColor$[@CTF_Team];
+			set $@CTF_FlagDroped[1],0;
+			movenpc "CTF_flag#Blue",329,149;
+			end;			
+			} else	{
+				//announce "["+strcharinfo(0)+"] Pegou a bandeira Azul do chão!",bc_map,$@CTF_AnncColor$[@CTF_Team];
+				set $@CTF_FlagDroped[1],0;
+				set $@CTF_FlagOwned[1],1;
+				set @HaveFlag[1],1;
+				callfunc("CTF_func","getFlag",1);
+				end;
+				}
+		}
+
+	if($@CTF_FlagOwned[1] || @CTF_Team) end;
+	set $@CTF_FlagOwned[1],1;
+	set @HaveFlag[1],1;
+	callfunc("CTF_func","getFlag",1);
+	end;
+}
+
+
+
+function	script	CTF_func	{
+
+	if(getarg(0)=="getFlag")
+	{
+	announce "["+strcharinfo(0)+"] do time ["+$@CTF_TeamNames$[@CTF_Team]+"] roubou a bandeira!",bc_map,$@CTF_AnncColor$[@CTF_Team];
+	atcommand "@speed "+$@PlayerFLagSpeed;
+	npcspeed 10;
+
+		while(@HaveFlag[0] || @HaveFlag[1])
+		{
+		getmapxy(@map$,@x,@y,0);
+		npcwalkto @x+3,@y;
+		specialeffect2 514;
+		sleep2 1000;
+		} npcstop;
+	atcommand "@speed "+125;
+	end;
+	}
+
+	if(getarg(0)=="getPoint")
+	{
+	set $@CTF_TeamPoints[@CTF_Team],$@CTF_TeamPoints[@CTF_Team]+1;
+	announce "O jogador ["+strcharinfo(0)+"] marcou ["+$@CTF_TeamPoints[@CTF_Team]+"/"+$CTF_PointsToWin+"] ponto(s) para o time ["+$@CTF_TeamNames$[@CTF_Team]+"]!",bc_map,$@CTF_AnncColor$[@CTF_Team];
+	set @HaveFlag[0],0;
+	set @HaveFlag[1],0;
+	set $@CTF_FlagOwned[0],0;
+	set $@CTF_FlagOwned[1],0;
+	set $@CTF_FlagDroped[0],0;
+	set $@CTF_FlagDroped[1],0;
+	if(@CTF_Team) set $@PlayersDidPoints2[getarraysize($@PlayersDidPoints2)],getcharid(3); else set $@PlayersDidPoints[getarraysize($@PlayersDidPoints2)],getcharid(3);
+		if($@CTF_TeamPoints[@CTF_Team]>=$CTF_PointsToWin)
+		{
+		announce "O Time ["+$@CTF_TeamNames$[@CTF_Team]+"] Venceu o Capture The Flag! Parabéns!",bc_map|bc_yellow;
+		if(@CTF_Team) movenpc "CTF_flag#Red",62,149; else movenpc "CTF_flag#Blue",329,149;
+			if(@CTF_Team)
+			{
+				dispbottom "oi AZUL";
+				for(set .@i,0;.@i!=getarraysize($@PlayersDidPoints2);set .@i,.@i+1)
+				{
+				dispbottom "oi AZUL";
+				if(!attachrid($@PlayersDidPoints2[.@i])) continue;
+				getitem $CTF_AwardIDAmount,$CTF_AwardIDAmount[1];
+				dispbottom "Você ganhou "+$CTF_AwardIDAmount[1]+" "+getitemname($CTF_AwardIDAmount)+" .";
+				}
+			} else	{
+				dispbottom "oi VERMELHO";
+					for(set .@i,0;.@i<=getarraysize($@PlayersDidPoints);set .@i,.@i+1)
+					{
+				dispbottom "oi VERMELHO";
+					if(!attachrid($@PlayersDidPoints[.@i])) continue;
+					getitem $CTF_AwardIDAmount,$CTF_AwardIDAmount[1];
+					dispbottom "Você ganhou "+$CTF_AwardIDAmount[1]+" "+getitemname($CTF_AwardIDAmount)+" .";
+					}
+				}
+
+		deletearray $@CTF_CapturedFlag,2;
+		deletearray $@CTF_FlagOwned,2;
+		deletearray $@CTF_TeamPoints,2;
+		deletearray $@CTF_FlagDroped,2;
+		deletearray $@PlayersDidPoints,$CTF_PointsToWin;
+		deletearray $@PlayersDidPoints2,$CTF_PointsToWin;
+		set $@CTF_Status,0;
+		sleep2 10000;
+		mapwarp "bat_b01","prontera",150,150;
+		set @c,1;
+		doevent "[CTF] Assistente::OnDisableCTF";
+		end;
+		}
+
+	if(@CTF_Team) movenpc "CTF_flag#Red",62,149; else movenpc "CTF_flag#Blue",329,149;
+	end;
+	}
+
+	if(getarg(0)=="dropFlag")
+	{
+		if(@HaveFlag[0]||@HaveFlag[1])
+		{
+		set @HaveFlag[0],0;
+		set @HaveFlag[1],0;
+		announce "["+strcharinfo(0)+"] perdeu a bandeira do time adversário!",bc_map,$@CTF_AnncColor$[@CTF_Team];
+			if(@CTF_Team)
+			{
+			set $@CTF_FlagDroped[0],1;
+			set $@CTF_FlagOwned[0],0;
+			set @HaveFlag[0],0;
+			set @HaveFlag[1],0;
+			} else	{
+				set $@CTF_FlagDroped[1],1;
+				set $@CTF_FlagOwned[1],0;
+				set @HaveFlag[0],0;
+				set @HaveFlag[1],0;
+				}
+		} return;
+	}
+}
+
+
+
+bat_b01	mapflag	nosave
+bat_b01	mapflag	nowarp
+bat_b01	mapflag	noteleport
+bat_b01	mapflag	nowarpto
+bat_b01	mapflag	gvg	off
+bat_b01	mapflag	pvp
+bat_b01	mapflag	nobranch
+bat_b01	mapflag	restricted	6

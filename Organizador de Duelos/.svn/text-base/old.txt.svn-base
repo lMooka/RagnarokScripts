@@ -1,0 +1,74 @@
+		switch(@DuelType)
+		{
+	case 5:
+		set @PID_1,getvariableofnpc(.duelPartyID,"5vs5#1");
+		set @PID_2,getvariableofnpc(.duelPartyID,"5vs5#2");
+			if(getcharid(1)==@PID_1)
+			{
+//				for(set @i,5;@i>=5;set @i,@i-1)
+//				{
+//					if(rid2name(killedrid)==$@5vs5MemberName_1$[@i])
+//					{
+//					Areaannounce "quiz_02",122,391,173,336,"[Organizador] Duelo foi encerrado por infração da regra. Um membro matou alguém da sua própria party. [Culpado: "+rid2name(killedrid)+" | Party: "+getpartyname(@PID_1)+"]",bc_map,0xFFDEAD;
+//					goto Cancel;
+//					}
+//				}
+			set $@firstMemberCount,$@firstMemberCount+1;
+			Areaannounce "quiz_02",122,391,173,336,"[Organizador] "+rid2name(killedrid)+" foi morto por "+strcharinfo(0)+". Party:["+strcharinfo(1)+"]",bc_map,0xFFDEAD;
+			sleep2 800; warpchar getsavepoint(0),getsavepoint(1),getsavepoint(2),getcharid(0,rid2name(killedrid));
+					if($@firstMemberCount==1)
+					{
+					Areaannounce "quiz_02",122,391,173,336,"[Organizador] Time 1 venceu a batalha! Parabéns!",bc_map,0xFFDEAD;
+						for(set .@i,5;.@i>=0;set .@i,.@i-1)
+						{
+						if(!attachrid(getcharid(3,$@5vs5MemberName_1$[.@i]))) continue;
+						dispbottom "[Organizador] Você ganhou 5 pontos!";
+						set #KAFRAPOINTS,#KAFRAPOINTS+5;
+						} goto Cancel;
+					}
+			end;
+			}
+
+			if(getcharid(1)==@PID_2)
+			{
+//				for(set @i,5;@i>=5;set @i,@i-1)
+//				{
+//					if(rid2name(killedrid)==$@5vs5MemberName_2$[@i])
+//					{
+//					Areaannounce "quiz_02",122,391,173,336,"[Organizador] Duelo foi encerrado por infração da regra. Um membro matou alguém da sua própria party. [Culpado: "+rid2name(killedrid)+" | Party: "+getpartyname(@PID_2)+"]",bc_map,0xFFDEAD;
+//					goto Cancel;
+//					}
+//				}
+			set $@secondMemberCount,$@secondMemberCount+1;
+			Areaannounce "quiz_02",122,391,173,336,"[Organizador] "+rid2name(killedrid)+" foi morto por "+strcharinfo(0)+". Party:["+strcharinfo(1)+"]",bc_map,0xFFDEAD;
+			sleep2 800; warp getsavepoint(0),getsavepoint(1),getsavepoint(2);
+					if($@secondMemberCount==1)
+					{
+					Areaannounce "quiz_02",122,391,173,336,"[Organizador] Time 2 venceu a batalha! Parabéns!",bc_map,0xFFDEAD;
+						for(set .@i,5;.@i>=0;set .@i,.@i-1)
+						{
+						if(!attachrid(getcharid(3,$@5vs5MemberName_2$[.@i]))) continue;
+						dispbottom "[Organizador] Você ganhou 5 pontos!";
+						set #KAFRAPOINTS,#KAFRAPOINTS+5;
+						} goto Cancel;
+					}
+			end;
+			}
+		dispbottom "Você foi retirado da arena por não pertencer a nenhuma party.";
+		Areaannounce "quiz_02",122,391,173,336,"[Organizador] Duelo foi encerrado por infração da regra. Um membro saiu da sua party. [Nick: "+strcharinfo(0)+"]",bc_map,0xFFDEAD;
+		goto Cancel;
+		}
+OnWhisperGlobal:
+if(getgmlevel()<99) end;
+Cancel:
+		for(set @i,5;@i>=0;set @i,@i-1) warpchar "quiz_02",133,347,getcharid(0,$@5vs5MemberName_1$[@i]);
+		for(set @i,5;@i>=0;set @i,@i-1) warpchar "quiz_02",161,348,getcharid(0,$@5vs5MemberName_2$[@i]);
+		set @PID_1,0;
+		set @PID_2,0;
+		set $@firstPartyCount,0;
+		set $@secondPartyCount,0;
+		set $@duelStatus,0;
+		addtimer 1,"5vs5#1::OnChatInit";
+		addtimer 1,"5vs5#2::OnChatInit";
+		atcommand "@raisemap";
+}

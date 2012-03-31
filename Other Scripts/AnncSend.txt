@@ -1,0 +1,76 @@
+-	script	SendAnnc	-1,{
+
+OnWhisperGlobal:
+	if(getgmlevel()<80) end;
+	if(@whispervar0$=="init") goto init;
+	
+	while(1)
+	{
+		mes "[Auto Announce]";
+		mes "Olá, o que gostaria de fazer?";
+		switch(select("Adicionar um anuncio:Retirar um anuncio:Deletar lista:Sair"))
+		{
+	case 1:
+		mes "[Auto Announce]";
+		mes "Há atualmente "+getarraysize($sendList$)+" Anuncios na lista.";
+		mes "Por favor, insira a mensagem.";
+		input @addlist$;
+		mes "A seguinte mensagem será adicionada:";
+		mes "^91b0a0"+@addlist$+"^000000";
+		next;
+		mes "[Auto Announce]";
+		mes "Deseja adiciona-la?";
+		if(select("Não:Sim")==1) break;
+		set $sendList$[getarraysize($sendList$)],@addlist$;// else set $sendList$[(getarraysize($sendList$)+1)],@addlist$;
+		mes "Mensagem adicionada com sucesso.";
+		break;
+		
+	case 2:
+		for(set @i,0;@i!=getarraysize($sendList$);set @i,@i+1) dispbottom (@i+1)+". "+$sendList$[@i];
+		mes "[Auto Announce]";
+		mes "A lista com os respectivos ID's dos Announce foi enviado na sua barra de mensagens.";
+		next;
+		mes "Qual mensagem deseja deletar?";
+		mes "Você deve inserir o ID dela.(0=Cancelar)";
+		input @ID;
+			if($sendList$[@ID]=="")
+			{
+				mes "[Auto Announce]";
+				mes "ID invalido.";
+				break;
+			} if(!@ID) break;
+		mes "[Auto Announce]";
+		mes "A seguinte mensagem será deletada:";
+		mes "^91b0a0"+$sendList$[(@ID-1)]+"^000000";
+		mes "Tem certeza dista disso?";
+		if(select("Não:Sim")==1) break;
+		for(set @i,@ID;@i!=getarraysize($sendList$);set @i,@i+1) set $sendList$[@i-1],$sendList$[@i];
+		set $sendList$[getarraysize($sendList$)-1],"";
+		mes "[Auto Announce]";
+		mes "Mensagem deletada.";
+		break;
+		
+	case 3:
+		mes "[Auto Announce]";
+		mes "Tem certeza que deseja apagar toda a lista?";
+		if(select("Não:Sim")==1) break;
+		deletearray $sendList$,getarraysize($sendList$);
+		set $sendLoop,0;
+		mes "[Auto Announce]";
+		mes "Lista deletada.";
+		break;
+		
+	case 4:
+		close;
+		
+		} close2;
+	}
+	
+init:
+OnInit:
+OnTimer1800000:
+	initnpctimer;
+	if($sendList$=="") end;
+	announce $sendList$[$sendLoop],bc_all,0x91b0a0;
+	if($sendList$[$sendLoop]!="") set $sendLoop,$sendLoop+1; else set $sendLoop,0;
+}

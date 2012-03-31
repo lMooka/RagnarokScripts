@@ -1,0 +1,88 @@
+//|==================================================================================|
+//|	      ___           ___           ___           ___           ___            |
+//|	     /\  \         /\  \         /\  \         /|  |         /\  \           |
+//|	    |::\  \       /::\  \       /::\  \       |:|  |        /::\  \          |
+//|	    |:|:\  \     /:/\:\  \     /:/\:\  \      |:|  |       /:/\:\  \         |
+//|	  __|:|\:\  \   /:/  \:\  \   /:/  \:\  \   __|:|  |      /:/ /::\  \        |
+//|	 /::::|_\:\__\ /:/__/ \:\__\ /:/__/ \:\__\ /\ |:|__|____ /:/_/:/\:\__\       |
+//|	 \:\--\  \/__/ \:\  \ /:/  / \:\  \ /:/  / \:\/:::::/__/ \:\/:/  \/__/       |
+//|	  \:\  \        \:\  /:/  /   \:\  /:/  /   \::/__/       \::/__/            |
+//|	   \:\  \        \:\/:/  /     \:\/:/  /     \:\  \        \:\  \            |
+//|	    \:\__\        \::/  /       \::/  /       \:\__\        \:\__\           |
+//|	     \/__/         \/__/         \/__/         \/__/         \/__/           |
+//| ================================================================================ |
+//|   Script Desenvolvido Por Mooka | eAthena | Por Favor, Não Retire Os Créditos.   |
+//| ================================================================================ |
+-	script	mob_control	-1,{
+
+OnWhisperGlobal:
+
+if(getgmlevel()<40) end;
+	if(compare(@whispervar0$,"create"))
+	{
+	getmapxy(@map$,@x,@y,0);
+	if(@Marionette) mobRemove @Marionette;
+	set @Marionette,mobspawn(strcharinfo(0)+"(Marionette)",@whispervar1$,@map$,@x,@y);
+	if(@whispervar2$=="") mobassist @Marionette,getcharid(3);
+//	setmobdata @Marionette,24,1;
+	dispbottom "Você criou um "+strmobinfo(1,@whispervar1$)+". ("+@Marionette+")";
+	end;
+	}
+
+	if(compare(@whispervar0$,"config"))
+	{
+	setmobdata @Marionette,@whispervar1$,@whispervar2$;
+	dispbottom "Informações Alteradas.";
+	end;
+	}
+
+	if(compare(@whispervar0$,"assist"))
+	{
+//		if(!isloggedin(getcharid(3,@whispervar1$),@whispervar1$))
+//		{
+//		dispbottom "Personagem não existe ou está offline.";
+//		end;
+//		}
+	mobassist @Marionette,getcharid(3,@whispervar1$);
+	dispbottom "Seu monstro está ajudando "+rid2name(getcharid(3,@whispervar1$))+" agora.";
+	end;
+	}
+
+	if(compare(@whispervar0$,"gotoplayer"))
+	{
+	if(getmapxy(@map$,@x,@y,0,@whispervar1$)) { dispbottom "Player não encontrado."; end; }
+	unitwarp @Marionette,@map$,@x,@y;
+	end;
+	}
+
+	if(compare(@whispervar0$,"recall"))
+	{
+	getmapxy(@map$,@x,@y,0);
+	unitwarp @Marionette,@map$,@x,@y;
+	end;
+	}
+
+	if(compare(@whispervar0$,"skill")) { unitskilluseid @Marionette,@whispervar1$,@whispervar2$; end; }
+
+	if(compare(@whispervar0$,"skill2")) { unitskillusepos @Marionette,@whispervar1$,@whispervar2$,@whispervar3$,@whispervar4$; end; }
+
+	if(compare(@whispervar0$,"warp")) { unitwarp @Marionette,@whispervar1$,@whispervar2$,@whispervar3$; end; }
+
+	if(compare(@whispervar0$,"attack")) { unitattack @Marionette,getcharid(3,@whispervar3$); end; }
+
+	if(compare(@whispervar0$,"walk")) { unitwalk @Marionette,@whispervar1$,@whispervar2$; end; }
+
+	if(compare(@whispervar0$,"stop")) { unitstop @Marionette; end; }
+
+	if(compare(@whispervar0$,"kill")) { unitkill @Marionette; end; }
+
+	if(compare(@whispervar0$,"emote")) { unitemote @Marionette,@whispervar1$; end; }
+
+	if(compare(@whispervar0$,"talk")) unittalk @Marionette,@whispervar1$;
+}
+
+
+//if(isloggedin(getcharid(3,@whispervar1$),@whispervar1$))
+
+//*unitskilluseid <GID>,<skill id>,<skill lvl>;
+//*unitskillusepos <GID>,<skill id>,<skill lvl>,<x>,<y>;

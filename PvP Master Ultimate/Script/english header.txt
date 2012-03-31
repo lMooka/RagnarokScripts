@@ -1,0 +1,86 @@
+//|==================================================================================|
+//|	      ___           ___           ___           ___           ___            |
+//|	     /\  \         /\  \         /\  \         /|  |         /\  \           |
+//|	    |::\  \       /::\  \       /::\  \       |:|  |        /::\  \          |
+//|	    |:|:\  \     /:/\:\  \     /:/\:\  \      |:|  |       /:/\:\  \         |
+//|	  __|:|\:\  \   /:/  \:\  \   /:/  \:\  \   __|:|  |      /:/ /::\  \        |
+//|	 /::::|_\:\__\ /:/__/ \:\__\ /:/__/ \:\__\ /\ |:|__|____ /:/_/:/\:\__\       |
+//|	 \:\--\  \/__/ \:\  \ /:/  / \:\  \ /:/  / \:\/:::::/__/ \:\/:/  \/__/       |
+//|	  \:\  \        \:\  /:/  /   \:\  /:/  /   \::/__/       \::/__/            |
+//|	   \:\  \        \:\/:/  /     \:\/:/  /     \:\  \        \:\  \            |
+//|	    \:\__\        \::/  /       \::/  /       \:\__\        \:\__\           |
+//|	     \/__/         \/__/         \/__/         \/__/         \/__/           |
+//| ================================================================================ |
+//|   Credits: Mooka | eAthena | Please, don't remove credits			     |
+//| ================================================================================ |
+//| 		Observação! O MapFlag Está No Final Do Script !			     |
+//| ================================================================================ |
+-	script	init_PM	-1,{							  // |
+//|                        						  	     |
+OnInit:                        						  	  // |
+//| Configurations:                                                        	     |
+//|                        						  	     |
+//|=> NPC name.									     |
+set $@pvpm_name$,"[ ^FF0000 Arena ^000000 ]";				    	  // |
+//| 										     |
+//|=> Want to use Ratio Ranking as the main? [ 1 = On ]				     |
+//|---> Note: Ranking Ratio: Points = Kills - Mortes				     |
+set $@mainRanking,1;								  // |
+//| 										     |
+//|=> Untill where Ranking will show. [ Max 127 ]				     |
+set $@showsRankUntil,25;							  // |
+//| 										     |
+//|=> PK mode. Is configured to automatically change, change if necessary.	     |
+set $@PK_Mode,getbattleflag("pk_mode");						  // |
+//| 										     |
+//|=> Remove buffs from the player when entering the arena. [ 1 = On]		     |
+set $@breakBuffs,0;								  // |
+//| 										     |
+//|=> When the player kills the other, will gain experience?			     |
+//|---> Note 1:	Servers high rates, set the "quest_exp_rate". (exp.conf)	     |
+//|---> Note 2:	$@lostEXP: Amount of EXP lost when dying. (0=Off)		     |
+//|---> Note 3:	Setup command:							     |
+//|-->  0 : Disabled.								     |
+//|-->  1 : Enabled by using equation of the NPC. ($@getEXP*KilledLVL/KillerLVL)     |
+//|-->  2 : Enabled. The player will always get the amount specified in $@getEXP.    |
+set $@getEXPoption,1;								  // |
+set $@getEXP,115; // 0,1% on level 50.						     |
+set $@lostEXP,0;								  // |
+//|										     |
+//|=> Enable the counting of points on maps of Woe?				     |
+//|---> Note 1: Do not are sent sounds/broadcast on the WoE maps.		     |
+//|---> Note 2: Setup:								     |
+//|--> 0: Disabled.								     |
+//|--> 1: Enable counting only the PvP.						     |
+//|--> 2: Enable counting only the GvG.						     |
+//|--> 3: Enable both.								     |
+set $@CountPointsInWoE,3;							  // |
+//| 										     |
+//|=> Setting Sound & Announce!							     |
+//|---> Note 1: The sound should be placed in the folder data/wav		     |
+//|---> Note 2: If disabling the sound of the UT, it also disables the broadcast.(1) |
+//|--> 0 : Disable All Options.							     |
+//|--> 1 : Enable only broadcast Global.					     |
+//|--> 2 : Enable only sounds/broadcast of Unreal Tournament. (1)		     |
+//|--> 3 : Enable both.								     |
+set $@sound,3;									  // |
+//| 										     |
+//|=> List the names of Unreal Tournament Sons.					     |
+//|---> Note 1: $@SoundList$[Points where the sound will play (Max. 127)],"Sound Name";
+//|---> Note 2: From the latter, will be added 10 and will be repeated the sound,    |
+//|---> 	the set with "end" indicates that the last sound is repeated from then on.
+//|---> Note 3: The file name is the same that will appear in announce.		     |
+set $@SoundList$[1],"First Blood";						  // |
+set $@SoundList$[2],"Double Kill";						  // |
+set $@SoundList$[3],"Triple Kill";						  // |
+set $@SoundList$[5],"Mega Kill";						  // |
+set $@SoundList$[10],"Ultra Kill";						  // |
+set $@SoundList$[15],"Killing Spree";						  // |
+set $@SoundList$[20],"Ownage";							  // |
+set $@SoundList$[25],"Holy Shit";						  // |
+set $@SoundList$[30],"God Like";						  // |
+set $@SoundList$[35],"Dominating";						  // |
+set $@SoundList$[40],"Unstoppable";						  // |
+set $@SoundList$[50],"Monster Kill";						  // |
+set $@SoundList$[51],"end";							  // |
+//|==================================================================================|

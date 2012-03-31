@@ -1,0 +1,396 @@
+//|==================================================================================|
+//|	      ___           ___           ___           ___           ___            |
+//|	     /\  \         /\  \         /\  \         /|  |         /\  \           |
+//|	    |::\  \       /::\  \       /::\  \       |:|  |        /::\  \          |
+//|	    |:|:\  \     /:/\:\  \     /:/\:\  \      |:|  |       /:/\:\  \         |
+//|	  __|:|\:\  \   /:/  \:\  \   /:/  \:\  \   __|:|  |      /:/ /::\  \        |
+//|	 /::::|_\:\__\ /:/__/ \:\__\ /:/__/ \:\__\ /\ |:|__|____ /:/_/:/\:\__\       |
+//|	 \:\--\  \/__/ \:\  \ /:/  / \:\  \ /:/  / \:\/:::::/__/ \:\/:/  \/__/       |
+//|	  \:\  \        \:\  /:/  /   \:\  /:/  /   \::/__/       \::/__/            |
+//|	   \:\  \        \:\/:/  /     \:\/:/  /     \:\  \        \:\  \            |
+//|	    \:\__\        \::/  /       \::/  /       \:\__\        \:\__\           |
+//|	     \/__/         \/__/         \/__/         \/__/         \/__/           |
+//| ================================================================================ |
+//|   Script Desenvolvido Por Mooka | eAthena | Por Favor, Não Retire Os Créditos.   |
+//| ================================================================================ |
+//| = 1.0.0 Desenvolvido. [Mooka]						     |
+//| = 1.0.1 Adicionado Platinun. [Copiado de Reply.]				     |
+//| = 1.0.2 Bug's Corrigidos. [Mooka {Obrigado David Boy}]			     |
+//| = -----									     |
+//| = 1.1.0 Adicionado Suporte a Baby Class. [Mooka]				     |
+//| = 1.1.1 Corrigido bug no reborn. [Mooka]					     |
+//| = 1.1.2 Corrigido bug no Taekwon e Ninja. [Mooka]				     |
+//| = 1.1.3 Corrigido bug no jobsys. [Mooka]					     |
+//| = 1.1.4 Adicionada checagem de items/zenys ao rebornar. [Mooka]		     |
+//| = 1.1.5 Algumas falas alteradas. [Mooka]					     |
+//| = 1.1.6 Bug no level 99 com 3ª classe corrigido. [Mooka]			     |
+//| = 1.1.7 Adicionada checagem de job ao renascer. [Mooka]			     |
+//| = 1.1.8 Adicionada job3 Platinun Skill. [Mooka]				     |
+//| ================================================================================ |
+prontera,149,194,5	script	Mestra das Classes	770,{
+//| ================================================================================ |
+
+		if(!Class && 10 > JobLevel) callsub(F_getMes,2);
+		if(Class == 4001 && 10 > JobLevel) callsub(F_getMes,2);
+		if(Class == 4023 && 10 > JobLevel) callsub(F_getMes,2);
+	if(!Class || Class == 4023 && JobLevel == 10)
+	{
+		if(SkillPoint) callsub(F_getMes,1);
+	mes $@namejobc$;
+	mes "Parabéns, você conseguiu todas suas habilidades básicas!";
+	mes "Agora você pode escolher uma classe para se tornar.";
+	mes "Qual gostaria de ser?";
+	if(!Upper) callsub(F_Job,select("Espadachim","Mago","Arqueiro","Noviço","Mercador","Gatuno","Super Aprendiz","Taekwon","Justiceiro","Ninja"));
+	callsub(F_Job,select("Bebê Espadachim","Bebê Mago","Bebê Arqueiro","Bebê Noviço","Bebê Mercador","Bebê Gatuno","Super Bebê"));
+	} else	if(Class == 4001 )
+		{
+			if(SkillPoint) callsub F_getMes,1;
+		mes $@namejobc$;
+		mes "Parabéns, você conseguiu todas suas habilidades básicas!";
+		mes "Agora você pode se tornar um ^0047AB"+jobname(4001+Job)+"^000000.";
+		mes "Deseja mudar sua profissão agora?";
+		if(select("Não:Sim") == 1) close;
+		jobchange Job,1;
+		callsub(F_getMes);
+		}
+				if(!$@chooseJobSys && JobLevel >= $@minJobLevel && Upper == 1 && JobChoose > 0)
+				{
+				mes $@namejobc$;
+				mes "Vejo que ficou mais forte!";
+				mes "Agora você pode se tornar um ^0047AB"+jobname(4001+jobChoose)+"^000000.";
+				mes "Está disposto a fazer isto agora?";
+					if(select("Não:Sim") == 1)
+					{
+					mes $@namejobc$;
+					mes "Volte quando estiver disposto então!";
+					close;
+					} if(SkillPoint) callsub F_getMes,1;
+				jobchange jobChoose,1;
+				set jobChoose,-1;
+				callsub(F_getMes);
+				}
+		if(BaseLevel >= $@rebornMinLevel && Class > 6 && JobLevel > $@minJobLevel && !Upper)
+		{
+		mes $@namejobc$;
+		mes "Vejo que você chegou no fim da sua jornada.";
+		mes "Você pode se tornar mais forte renascendo, sendo assim, começar sua jornada do inicio.";
+		mes "Porém, você será mais forte, recebendo novas habilidades.";
+			if(!$@checkitems && Weight^Zeny)
+			{
+			close2;
+			mes $@namejobc$;
+			mes "Para fazer isto você deve se livrar de todos seus pertences da vida passada.";
+			mes "Como equipamentos e todo seu dinheiro...";
+			mes "Volte a falar comigo quando se livrar deles.";
+			close;
+			} close2;
+		mes $@namejobc$;
+		mes "Você está disposto a renascer?";
+			if(select("Não:Sim") == 1) close;
+		jobchange 4001;
+		resetlvl(1);
+		callsub(F_getMes);
+		}
+			if(Job < 9 && Job != 7 && JobLevel >= $@minJobLevel && Class < 9 || Class > 4001 && Class < 4008 && JobLevel >= $@minJobLevel || Class == 4046 && JobLevel >= $@minJobLevel)
+			{
+			if(SkillPoint) callsub F_getMes,1;
+			if(Upper) set @Upper,4001;
+			if(Upper == 2) set @Upper,@Upper+22;
+			mes $@namejobc$;
+			mes "Pelo que vejo você ficou forte!";
+			mes "Posso deixa-ló mais forte ainda,";
+			mes "basta que você escolha uma das classes seguintes para seguir sua jornada daqui para frente!";
+			next;
+					if(select(jobname(nextJob+@Upper),jobname(nextJob2+@Upper)) == 1)
+					{
+					mes $@namejobc$;
+					mes "Tem certeza que deseja virar esta classe?";
+					if(select("Não:Sim") == 1) close;
+					jobchange nextJob,Upper;
+					set jobChoose,nextJob;
+					} else
+				{
+				mes $@namejobc$;
+				mes "Tem certeza que deseja virar esta classe?";
+				if(select("Não:Sim") == 1) close;
+				jobchange nextJob2,Upper;
+				set jobChoose,nextJob2;
+				} callsub(F_getMes);
+			} else		if(Class > 0 && Class < 7 || Class > 4001 && Class < 4008 || Class > 4023 && Class < 4029 && JobLevel < $@minJobLevel || Class == 4046 && JobLevel < $@minJobLevel)
+					{
+					mes $@namejobc$;
+					mes "Você precisa estar no mínimo Job ^900020"+$@minJobLevel+"^000000 para se tornar outra classe!";
+					close;
+					}
+	if(Class > 7 && Class < 22)
+	{
+	mes $@namejobc$;
+	mes "Você deve voltar a falar comigo quando estiver level ^900020"+$@rebornMinLevel+"^000000 e Job ^900020"+$@minJobLevel+"^000000.";
+	close;
+	}
+		mes $@namejobc$;
+		mes "Não posso mais ajudá-lo.";
+		mes "Você chegou ao limite da sua força.";
+		close;
+		
+F_Job:			switch(getarg(0))
+			{
+		case 7:			if(BaseLevel < $@saMinLevel)
+					{
+					mes $@namejobc$;
+					mes "Você precisa ser level ^900020"+$@saMinLevel+"^000000 para virar ^0047ABSuper Aprendiz^000000.";
+					close;
+					} jobchange 23,Upper;
+			callsub platinun,Class;
+			callsub(F_getMes);
+		case 8:
+			jobchange 4046;
+			set nextJob,4047;
+			set nextJob2,4049;
+			callsub(F_getMes);
+		case 9:
+			jobchange 24;
+			callsub(F_getMes);
+		case 10:
+			jobchange 25;
+			callsub(F_getMes);
+		default:
+			jobchange getarg(0),Upper;
+			set Job,getarg(0);
+			callsub platinun,Class;
+				if (!Upper)	switch(Job)
+						{
+					case 1: set nextJob,7; set nextJob2,14; break;
+					case 2: set nextJob,9; set nextJob2,16; break;
+					case 3:	
+						if(!Sex)
+						{
+						set nextJob,11; set nextJob2,20;
+						break;
+						} set nextJob,11;
+						set nextJob2,19;
+						break;
+					case 4:	set nextJob,8; set nextJob2,15; break;
+					case 5: set nextJob,10; set nextJob2,18; break;
+					case 6: set nextJob,12; set nextJob2,17; break;
+						} callsub(F_getMes);
+			}
+F_getMes:
+	switch(getarg(0,0))
+	{
+	case 0:
+		mes $@namejobc$;
+		mes "Parabéns!";
+		mes "Agora você é um ^0047AB"+jobname(Class)+"^000000!";
+		close;
+	case 1:
+		mes $@namejobc$;
+		mes "Por favor, utilize todos os seus pontos de skill.";
+		close;
+	case 2:
+		mes $@namejobc$;
+		mes "Você precisar ter todas as habilidades básicas para se tornar outra classe.";
+		close;
+		}
+platinun:
+			if(!$@platinun) return;
+		switch(getarg(0))
+		{
+			switch(Class)
+			{		
+
+	case 23:
+		skill 142,1,0; //Primeiros Socorros
+		return;
+	case 4045:
+		skill 142,1,0; //Primeiros Socorros
+		return;
+	case 1:
+		skill 142,1,0;	//Primeiros Socorros
+		skill 144,1,0;	//Moving HP-Recovery
+		skill 145,1,0;	//Fatal Blow
+		skill 146,1,0;	//Auto Berserk
+		skill 142,1,0;  //Primeiros Socorros
+		return;
+	case 4002:
+		skill 142,1,0;	//Primeiros Socorros
+		skill 144,1,0;	//Moving HP-Recovery
+		skill 145,1,0;	//Fatal Blow
+		skill 146,1,0;	//Auto Berserk
+		skill 142,1,0;  //Primeiros Socorros
+		return;
+	case 4024:
+		skill 142,1,0;	//Primeiros Socorros
+		skill 144,1,0;	//Moving HP-Recovery
+		skill 145,1,0;	//Fatal Blow
+		skill 146,1,0;	//Auto Berserk
+		skill 142,1,0;  //Primeiros Socorros
+		return;
+	case 2:
+		skill 142,1,0;	//Primeiros Socorros
+		skill 157,1,0;	//Proteção Arcana
+		skill 142,1,0;  //Primeiros Socorros
+		return;
+	case 4003:
+		skill 142,1,0;	//Primeiros Socorros
+		skill 157,1,0;	//Proteção Arcana
+		skill 142,1,0;  //Primeiros Socorros
+		return;
+	case 4025:
+		skill 142,1,0;	//Primeiros Socorros
+		skill 157,1,0;	//Proteção Arcana
+		skill 142,1,0;  //Primeiros Socorros
+		return;
+	case 3:
+		skill 142,1,0;	//Primeiros Socorros
+		skill 147,1,0;	//Arrow Crafting
+		skill 148,1,0;	//Arrow Repel
+		skill 142,1,0;  //Primeiros Socorros
+		return;
+	case 4004:
+		skill 142,1,0;	//Primeiros Socorros
+		skill 147,1,0;	//Arrow Crafting
+		skill 148,1,0;	//Arrow Repel
+		skill 142,1,0;  //Primeiros Socorros
+		return;
+	case 4026:
+		skill 142,1,0;	//Primeiros Socorros
+		skill 147,1,0;	//Arrow Crafting
+		skill 148,1,0;	//Arrow Repel
+		skill 142,1,0;  //Primeiros Socorros
+		return;
+	case 4:
+		skill 142,1,0;	//Primeiros Socorros
+		skill 156,1,0;	//Luz Divina
+		skill 142,1,0;  //Primeiros Socorros
+		return;
+	case 4005:
+		skill 142,1,0;	//Primeiros Socorros
+		skill 156,1,0;	//Luz Divina
+		skill 142,1,0;  //Primeiros Socorros
+		return;
+	case 4027:
+		skill 142,1,0;	//Primeiros Socorros
+		skill 156,1,0;	//Luz Divina
+		skill 142,1,0;  //Primeiros Socorros
+		return;
+	case 5:
+		skill 142,1,0;	//Primeiros Socorros
+		skill 153,1,0;	//Cart Revolution
+		skill 154,1,0;	//Change Cart
+		skill 155,1,0;	//Crazy Uproar
+		skill 142,1,0;  //Primeiros Socorros
+		return;
+	case 4006:
+		skill 142,1,0;	//Primeiros Socorros
+		skill 153,1,0;	//Cart Revolution
+		skill 154,1,0;	//Change Cart
+		skill 155,1,0;	//Crazy Uproar
+		skill 142,1,0;  //Primeiros Socorros
+		return;
+	case 4028:
+		skill 142,1,0;	//Primeiros Socorros
+		skill 153,1,0;	//Cart Revolution
+		skill 154,1,0;	//Change Cart
+		skill 155,1,0;	//Crazy Uproar
+		skill 142,1,0;  //Primeiros Socorros
+		return;
+	case 6:
+		skill 142,1,0;	//Primeiros Socorros
+		skill 149,1,0;	//Jogar Areia
+		skill 150,1,0;	//Recuar
+		skill 151,1,0;	//Procurar Pedras
+		skill 152,1,0;	//Jogar Pedra
+		skill 142,1,0;  //Primeiros Socorros
+		return;
+	case 4007:
+		skill 142,1,0;	//Primeiros Socorros
+		skill 149,1,0;	//Jogar Areia
+		skill 150,1,0;	//Recuar
+		skill 151,1,0;	//Procurar Pedras
+		skill 152,1,0;	//Jogar Pedra
+		skill 142,1,0;  //Primeiros Socorros
+		return;
+	case 4029:
+		skill 142,1,0;	//Primeiros Socorros
+		skill 149,1,0;	//Jogar Areia
+		skill 150,1,0;	//Recuar
+		skill 151,1,0;	//Procurar Pedras
+		skill 152,1,0;	//Jogar Pedra
+		return;
+	case 4008:
+		skill 1001,1,0;
+		return;
+	case 4014:
+		skill 1001,1,0;
+		return;
+	case 4009:
+		skill 1014,1,0;
+		return;
+	case 4010:
+		skill 1006,1,0;
+		return;
+	case 4011:
+		skill 1012,1,0;
+		skill 1013,1,0;
+		return;
+	case 4012:
+		skill 1009,1,0;
+		return;
+	case 4013:
+		skill 1003,1,0;
+		skill 1004,1,0;
+		return;
+	case 4015:
+		skill 1002,1,0;
+		return;
+	case 4022:
+		skill 1002,1,0;
+		return;
+	case 4016:
+		skill 1015,1,0;
+		skill 1016,1,0;
+		return;
+	case 4017:
+		skill 1007,1,0;
+		skill 1008,1,0;
+		skill 1017,1,0;
+		skill 1018,1,0;
+		skill 1019,1,0;
+		return;
+	case 4018:
+		skill 1005,1,0;
+		return;
+	case 18:
+		skill 243,1,0;
+		skill 244,1,0;
+		skill 247,5,0;
+		return;
+	case 4019:
+		skill 243,1,0;
+		skill 244,1,0;
+		skill 247,5,0;
+		return;
+	case 4020:
+		skill 1010,1,0;
+		return;
+	case 4021:
+		skill 1011,1,0;
+		return;
+
+	default: return;
+			}
+		}
+OnInit:
+//    ======================= Configurações =========================
+	set $@namejobc$,"[ ^900020Mestra das Classes^000000 ]";
+	set $@rebornMinLevel,99; // BaseLevel mínimo para rebornar. [Padrão: 99]
+	set $@saMinLevel,45; // BaseLevel mínimo para se tornar Super Aprendiz. [Padrão: 45]
+	set $@minJobLevel,40; // JobLevel mínimo para se tornar 2ª classe. [Padrão: 40]
+	set $@chooseJobSys,0; // Player pode escolher qual classe virar no job3?. [Padrão: 0] (Ex: Poder escolher: stalker ou sinx, sendo Gatuno T. | 1 = Sim) 
+	set $@platinun,1; // Receber Platinun Skill? [Padrão: 0] (1 = Sim)
+	set $@checkitems,0; // Na hora de renascer, o player pode ter items/zeny? [Padrão: 0] (1 = Não)
+//    ===============================================================
+
+
+}

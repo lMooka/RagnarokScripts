@@ -1,0 +1,148 @@
+//|==================================================================================|
+//|	      ___           ___           ___           ___           ___            |
+//|	     /\  \         /\  \         /\  \         /|  |         /\  \           |
+//|	    |::\  \       /::\  \       /::\  \       |:|  |        /::\  \          |
+//|	    |:|:\  \     /:/\:\  \     /:/\:\  \      |:|  |       /:/\:\  \         |
+//|	  __|:|\:\  \   /:/  \:\  \   /:/  \:\  \   __|:|  |      /:/ /::\  \        |
+//|	 /::::|_\:\__\ /:/__/ \:\__\ /:/__/ \:\__\ /\ |:|__|____ /:/_/:/\:\__\       |
+//|	 \:\--\  \/__/ \:\  \ /:/  / \:\  \ /:/  / \:\/:::::/__/ \:\/:/  \/__/       |
+//|	  \:\  \        \:\  /:/  /   \:\  /:/  /   \::/__/       \::/__/            |
+//|	   \:\  \        \:\/:/  /     \:\/:/  /     \:\  \        \:\  \            |
+//|	    \:\__\        \::/  /       \::/  /       \:\__\        \:\__\           |
+//|	     \/__/         \/__/         \/__/         \/__/         \/__/           |
+//| ================================================================================ |
+//|   Script Desenvolvido Por Mooka | eAthena | Por Favor, Não Retire Os Créditos.   |
+//| ================================================================================ |
+-	script	auction_event	-1,{
+OnAuctionEvent:
+mapannounce "job_cru","["+strcharinfo(0)+"] adicionou [+"+$@newauctionref+" "+getitemname($@newauctionid)+"] no Leilão.",bc_map,0x9966CC;
+}
+
+-	script	setcell#job_cru	-1,{
+OnInit:
+setcell "job_cru",18,109,29,46,6,1;
+setcell "job_cru",8,109,39,34,7,1;
+setcell "job_cru",18,109,29,46,7,0;
+setcell "job_cru",22,109,25,38,7,1;
+}
+
+
+job_cru,22,105,4	script	Kafra Shopping	117,{
+
+cutin "kafra_02",2;
+
+	mes "[ Kafra Corp. ]";
+	mes "Olá ~";
+	mes "Bem-vindo à Corporação Kafra, nós estaremos ao seu lado onde quer que você vá.";
+	next;
+	mes "[ Kafra Corp. ]";
+	mes "Você pode ver meus serviços disponíveis abaixo.";
+		switch(select("- Ver Mail(s):- Abrir Auction:- Informações:- Voltar a Cidade:Sair"))
+		{
+
+	case 1:
+		next;
+		mes "[ Kafra Corp. ]";
+		mes "Volte Sempre ~";
+		cutin "",255;
+		OpenMail;
+		close;
+
+	case 2:
+		next;
+		mes "[ Kafra Corp. ]";
+		mes "Volte Sempre ~";
+		cutin "",255;
+		OpenAuction;
+		close;
+
+	case 3:
+
+			switch(select("O que é este lugar?:Onde posso fazer minhas vendas?:Posso criar Chats aqui?"))
+			{
+
+		case 1:
+			mes "[ Kafra Corp. ]";
+			mes "Este é o local onde você pode encontrar todas as lojas do servidor, uma Central das Lojas!";
+			next;
+			mes "[ Kafra Corp. ]";
+			mes "Lembrando que só é permitido lojas neste local, caso exista uma loja em outro lugar avise a Kafra Corp.!";
+			cutin "",255;
+			close;
+
+		case 2:
+			set @y,109;
+			for(set @i,75;@i;set @i,@i-1)
+			{
+			set @y,@y-2;
+			set @point,@point+1;
+			viewpoint 1,18,@y,@point,0xFFFF00;
+			set @point,@point+1;
+			viewpoint 1,29,@y,@point,0xFFFF00;
+			}
+
+			mes "[ Kafra Corp. ]";
+			mes "Você pode criar lojas fora da área ^FFFF00Amarela^000000.";
+			cutin "",255;
+			close;
+
+		case 3:
+			set @y,109;
+			for(set @i,75;@i;set @i,@i-1)
+			{
+			set @y,@y-2;
+			set @point,@point+1;
+			viewpoint 1,18,@y,@point,0xFF0000;
+			set @point,@point+1;
+			viewpoint 1,29,@y,@point,0xFF0000;
+			}
+			mes "[ Kafra Corp. ]";
+			mes "Sim, você pode criar Chats dentro da área vermelha.";
+			cutin "",255;
+			close;
+			}
+
+	case 4:
+		mes "[ Kafra Corp. ]";
+		mes "Volte sempre ~";
+		next;
+		warp getsavepoint(0),getsavepoint(1),getsavepoint(2);
+		close;
+
+	case 5:
+		mes "[ Kafra Corp. ]";
+		mes "Volte sempre ~";
+		close;
+		}
+}
+
+prontera	mapflag	novending
+izlude	mapflag	novending
+morocc	mapflag	novending
+geffen	mapflag	novending
+payon	mapflag	novending
+pay_arche	mapflag	novending
+alberta	mapflag	novending
+aldebaran	mapflag	novending
+yuno	mapflag	novending
+lighthalzen	mapflag	novending
+einbroch	mapflag	novending
+einbech	mapflag	novending
+comodo	mapflag	novending
+umbala	mapflag	novending
+amatsu	mapflag	novending
+gonryun	mapflag	novending
+ayothaya	mapflag	novending
+louyang	mapflag	novending
+hugel	mapflag	novending
+rachel	mapflag	novending
+veins	mapflag	novending
+
+
+
+job_cru.gat	mapflag	nowarp
+job_cru.gat	mapflag	noteleport
+job_cru.gat	mapflag	sakura
+job_cru.gat	mapflag	town
+job_cru.gat	mapflag	noskill
+

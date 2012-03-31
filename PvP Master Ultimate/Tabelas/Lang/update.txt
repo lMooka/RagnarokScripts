@@ -1,0 +1,5 @@
+(83, 0, '<!!!> As arenas foram mudadas.'),
+(84, 0, '-> !map#list retorna a lista de arenas.'),
+(85, 0, '-> !map#rotate para circular/mudar as arenas.'),
+(86, 0, 'Minutos] Para o inicio do Evento Deathmatch!'),
+(87, 0, 'Minutos] Para o término do Evento Deathmatch!');

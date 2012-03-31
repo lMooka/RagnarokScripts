@@ -1,0 +1,99 @@
+//|==================================================================================|
+//|	      ___           ___           ___           ___           ___            |
+//|	     /\  \         /\  \         /\  \         /|  |         /\  \           |
+//|	    |::\  \       /::\  \       /::\  \       |:|  |        /::\  \          |
+//|	    |:|:\  \     /:/\:\  \     /:/\:\  \      |:|  |       /:/\:\  \         |
+//|	  __|:|\:\  \   /:/  \:\  \   /:/  \:\  \   __|:|  |      /:/ /::\  \        |
+//|	 /::::|_\:\__\ /:/__/ \:\__\ /:/__/ \:\__\ /\ |:|__|____ /:/_/:/\:\__\       |
+//|	 \:\--\  \/__/ \:\  \ /:/  / \:\  \ /:/  / \:\/:::::/__/ \:\/:/  \/__/       |
+//|	  \:\  \        \:\  /:/  /   \:\  /:/  /   \::/__/       \::/__/            |
+//|	   \:\  \        \:\/:/  /     \:\/:/  /     \:\  \        \:\  \            |
+//|	    \:\__\        \::/  /       \::/  /       \:\__\        \:\__\           |
+//|	     \/__/         \/__/         \/__/         \/__/         \/__/           |
+//| ================================================================================ |
+//|   Script Desenvolvido Por Mooka | eAthena | Por Favor, Não Retire Os Créditos.   |
+//| ================================================================================ |
+//|[1.0.3] : Adicionado Chat Privado entre as alianças. (msg#uc#1,msg#uc#2,msg#uc#3) |
+//|[1.0.2] : Delay no chat da aliança adicionado.				     |
+//|[1.0.1] : Desenvolvido msg#u. (Msg para membros da Aliança)			     |
+//|[1.0.0] : Desenvolvido msg#g. (Msg do Guild Master para membros da Guild)	     |
+//|==================================================================================|
+-	script	msg#g	-1,{
+
+OnWhisperGlobal:
+	if(getguildmasterid(getcharid(2)) != getcharid(0)) end;
+	set .@GID,getcharid(2);
+	set .@whispervar$,@whispervar0$;
+		if(getd(".time_gmsg"+getcharid(2))!=gettime(2))
+		{
+		query_sql("select account_id from guild_member where guild_id="+.@GID+" and online=1",@Gmsg_L);
+		setd ".time_gmsg"+getcharid(2),gettime(2);
+		} copyarray .@Gmsg_L,@Gmsg_L,getarraysize(@Gmsg_L);
+			for(set .@j,0;.@j<=getarraysize(.@Gmsg_L);set .@j,.@j+1)
+			{
+			if(!attachrid(.@Gmsg_L[.@j])) continue;
+			announce "[Guild Master] "+.@whispervar$,bc_self,0xf5deb3;
+			} end;
+}
+
+function	script	AllyMsgChannel	{
+
+
+	if(@whispervar0$=="!on") { set @ChatUnionActive,0; dispbottom "[ Chat da Aliança Ativado. ]"; end; }
+	if(@whispervar0$=="!off") { set @ChatUnionActive,1; dispbottom "[ Chat da Aliança Desativado. ]"; end; }
+
+	if(!@i) dispbottom "[AVISO] Envie !off para desativar o chat. (!on para ativar)";
+
+	set .@GID,getcharid(2);
+	set .@whispervar$,@whispervar0$;
+	set .@Umsg_PN$,strcharinfo(0);
+	set .@Umsg_GN$,strcharinfo(2);
+
+		if(getd(".time_umsg"+.@GID)!=gettime(2))
+		{
+		query_sql("select alliance_id from guild_alliance where guild_id="+.@GID+" and opposition=0 order by alliance_id asc",@AlID);
+		if(getarg(0)==3) query_sql("select account_id from guild_member where guild_id="+.@GID+" or guild_id="+@AlID[0]+" or guild_id="+@AlID[1]+" or guild_id="+@AlID[2]+" and online=1",@Umsg_L);
+				 else query_sql("select account_id from guild_member where guild_id="+.@GID+" or guild_id="+@AlID[getarg(0)]+" and online=1",@Umsg_L);
+		for(set @i,0;@i <= getarraysize(@Umsg_L);set @i,@i+1) setd ".Umsg_L"+.@GID+"["+@i+"]",@Umsg_L[@i];
+		setd ".time_umsg"+.@GID,gettime(2);
+		}
+
+		if((gettime(1)-@uDelay) <= $@ChatDelay)
+		{
+		dispbottom "-> Aguarde "+$@ChatDelay+" segundos para enviar outra mensagem.";
+		set @uDelay,gettime(1);
+		end;
+		}
+
+		for(set .@j,0;getd(".Umsg_L"+.@GID+"["+.@j+"]")!=0;set .@j,.@j+1) // Envia a mensagem para todos da guild aliança
+		{
+		if(!attachrid(getd(".Umsg_L"+.@GID+"["+.@j+"]")) || @ChatUnionActive) continue;
+		if(getarg(0)==3) dispbottom "[@Todos#"+.@Umsg_GN$+"|"+.@Umsg_PN$+"] "+.@whispervar$; else dispbottom "[@"+getarg(0)+"ª.Ally#"+.@Umsg_GN$+"|"+.@Umsg_PN$+"] "+.@whispervar$;
+		}
+}
+
+
+-	script	msg#u	-1,{
+
+OnWhisperGlobal:
+	callfunc("AllyMsgChannel",3);
+
+OnInit:
+set $@ChatDelay,2; // 2 segundos de delay.
+}
+
+-	script	msg#u1	-1,{
+OnWhisperGlobal:
+	callfunc("AllyMsgChannel",0);
+}
+
+-	script	msg#u2	-1,{
+OnWhisperGlobal:
+	callfunc("AllyMsgChannel",1);
+}
+
+-	script	msg#u3	-1,{
+OnWhisperGlobal:
+	callfunc("AllyMsgChannel",2);
+}
+

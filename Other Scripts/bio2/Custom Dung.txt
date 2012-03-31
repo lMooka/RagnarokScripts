@@ -1,0 +1,760 @@
+//===== eAthena Script =======================================
+//= Custom Dungeon
+//===== By: ==================================================
+//= Mooka
+//===== Current Version: =====================================
+//= 1.0
+//===== Compatible With: =====================================
+//= Any eAthena Version
+//===== Description: =========================================
+//= Quest da dungueon
+//===== Additional Comments: =================================
+//= 1.0 - Chato pra kralho fazer isso
+//============================================================
+
+lighthalzen,144,77,5	script	Arthur#Quest	121,{
+	if(!bottleQuest) {
+	mes "[Arthur]";
+	mes "O que quer comigo?";
+	mes "Deixe-me sozinho!";
+	set bottleQuest,1;
+	close;
+	}
+
+	if(bottleQuest==1) {
+	mes "[Arthur]";
+	mes "Como você é chato rapaz!";
+	mes "Você me lembra aquela gentalha insurportável do laboratório!";
+	next;
+		mes "[Arthur]";
+		mes "Eles me expulsaram por um erro cometido por mim...";
+		mes "Eu conduzia experiências com clones humanos,";
+		next;
+		mes "[Arthur]";
+		mes "porém, os clones se revoltaram contra nós, nos atacaram, por sorte conseguimos fechar todas as saídas.";
+		mes "Mas eles ainda existem, estão lá, trancados!";
+		next;
+		if(select("- Mas porquê você foi expulso?"));
+		mes "[Arthur]";
+		mes "Após terem os trancados, eu voltei ao laborátorio entrando pelo esgoto.";
+		mes "Roubei alguns materiais produzidos pelos clones, mas fui descoberto ao sair de lá.";
+		if(select("- Então você é um ladrão?"));
+		mes "[Arthur]";
+		mes "Se você pensa assim ...";
+		mes "Eu não fui o unico expulso, o ^0000FFAbel^000000 e a ^0000FFAngelica^000000 também foram.";
+		mes "Era por uma boa causa.";
+		set bottleQuest,2;
+		close;
+	}
+
+	if(bottleQuest==2) {
+	mes "[Arthur]";
+	mes "Você de novo?";
+	mes "Não percebe que sua presença não é de meu agrado?";
+	if(select("- Desculpe-me, vou embora então.:- Me desculpe, mas eu fiquei curioso.")==1) close;
+	mes "[Arthur]";
+	mes "Sobre o que?";
+		while(1) {
+		switch(select("- Como eram os clones?:- Então são igauis a nós?:- Eu posso ajudá-lo?")) {
+	case 1:
+		mes "[Arthur]";
+		mes "Bem, eles foram clonados de vários voluntários. Poucos permaneceram até o final do experimento.";
+		mes "Os que desistiram ficaram com medo do que poderia acontecer, pois os clones que deram errados tiveram mutações terríveis!";
+		set bottleQuest,3;
+		close2;
+		continue;
+
+	case 2:
+		mes "[Arthur]";
+		mes "Ora, que pergunta tola a sua rapaz.";
+		mes "Sim, eram. Principalmente nas suas habilidades.";
+		mes "Por conta própria começaram a fazer seus próprios experimentos.";
+		if(bottleQuest==3) set bottleQuest,4;
+		close2;
+		continue;
+
+	case 3:
+		mes "[Arthur]";
+		if(bottleQuest!=4) {
+		mes "Creio que não possa me ajudar em nada.";
+		close;
+		}
+		mes "Eu já desisti desse experimento, foi um completo desastre.";
+		mes "Angelica ainda está tentando reverter o ocorrido, a ultima vez que eu a vi foi em Yuno.";
+		mes "Mencionou algo de estar na biblioteca da cidade, disse que encontrara muitas coisas sobre valkyrias.";
+		set bottleQuest,5;
+		close;
+		}
+	}
+
+	}
+
+	if(bottleQuest==5) {
+	mes "[Arthur]";
+	mes "Na biblioteca onde encontra-se o livro de Ymir.";
+	close;
+	}
+
+	if(bottleQuest==9) {
+	mes "[Arthur]";
+	mes "Abel e Angelica nunca ficam separados... desconfio que eles tenham um caso...";
+	close;
+	}
+
+	mes "[Arthur]";
+	mes "Eu ainda vou voltar pra a organização, tenho certeza.";
+	close;
+
+}
+
+yuno_in02,104,164,7	script	Angelica	744,{
+
+
+		if(bottleQuest<5||bottleQuest>11) {
+		mes "[Angelica]";
+		mes "*tsc tsc*";
+		mes "mas cadê o livro....?";
+		close;
+		}
+
+		if(bottleQuest==6) {
+		mes "[Angelica]";
+		mes "Ainda não o encontrou?";
+		mes "Ele desceu uma escada, fica perto daqui.";
+		close;
+		}
+
+	if(bottleQuest==5) {
+	mes "["+strcharinfo(0)+"]";
+	mes "Olá, Angelica!";
+	next;
+	mes "[Angelica]";
+	mes "Hmm..?";
+	mes "Quem é você?";
+	next;
+	mes "["+strcharinfo(0)+"]";
+	mes "Um conhecido do Arthur, estou interessado em ajudá-la.";
+	next;
+	mes "[Angelica]";
+	mes "Sério?? As estrelas ouviram minhas preces!";
+	mes "Pois bem, já que você quer me ajudar, poderia procurar o Abel?";
+	mes "Eu já estou preoculpada com ele, já faz muito tempo que ele saiu para procurar um papel no subsolo.";
+		if(select("Sim, claro!:Err.. eu queria saber os clones.")==1) {
+		next;
+		mes "[Angelica]";
+		mes "Muito obrigada!";
+		mes "Estou aguardando...";
+		set bottleQuest,6;
+		close;
+		} else {
+
+			mes "[Angelica]";
+			mes "AHHH! Então é isso!";
+			mes "Eu prefiro não comentar sobre isso, foi um trauma para mim. Eu quase morri.";
+			next;
+			mes "["+strcharinfo(0)+"]";
+			mes "Eu gostaria de conhecer este local...";
+			next;
+			mes "[Angelica]";
+			mes "Então você é um aventureiro?";
+			mes "Pois bem, eu te direi o como chegar lá.";
+			next;
+			mes "[Angelica]";
+			mes "Em Lighthalzen há um bueiro, escondido entre os arbustos, ele está na área protejida pelos guardas.";
+			mes "Porém, só possível abrir com uma ferramenta feita por um amigo meu.";
+			mes "Atualmente ele está em payon, perto da área dos ferreiros, seu nome é ^0000FFTom^000000.";
+			set bottleQuest,8;
+			close;
+			}
+	}
+
+	if(bottleQuest==7||bottleQuest==8) {
+		if(bottleQuest==7) {
+	mes "[Angelica]";
+	mes "Você encontrou o Abel?";
+	mes "Como ele está?";
+	next;
+	mes "["+strcharinfo(0)+"]";
+	mes "Bem.";
+	mes "Eu na verdade gostaria de saber sobre os clones desde o inicio, Angelica.";
+	mes "Poderia me explicar como chegar lá?";
+	next;
+	mes "[Angelica]";
+	mes "Ah, me desculpe!";
+	mes "O fiz procurar pelo Abel...";
+	next;
+	}
+	mes "[Angelica]";
+	mes "Em Lighthalzen há um bueiro, escondido entre os arbustos, ele está na área protejida pelos guardas.";
+	mes "Porém, só é possível abrir com uma ferramenta feita por um amigo meu.";
+	mes "Atualmente ele está em payon, perto da área dos ferreiros, seu nome é ^0000FFTom^000000.";
+	set bottleQuest,8;
+	close;
+	}
+
+	if(bottleQuest==9) {
+	mes "["+strcharinfo(0)+"]";
+	mes "Angelica, onde está o Abel?";
+	next;
+	mes "[Angelica]";
+	mes "Eu não sei, ele saiu para procurar algo na biblioteca.";
+	close;
+	}
+
+	if(bottleQuest==10||bottleQuest==11) {
+	mes "[Angelica]";
+	mes "Eu possuo um amigo chamado ^0000FFChistian^000000 que se interessa por materiais dos clones.";
+	mes "Ele diz ser super fácil criar frascos de alquimista com esses items.";
+	next;
+	mes "[Angelica]";
+	mes "Você poderia procurá-lo para informar-se mais, ele trabalha no laboratório dos alquimistas em Al de Baran.";
+	set bottleQuest,11;
+	close;
+	}
+}
+
+
+yuno_in05,170,30,3	script	Abel	740,{
+
+	if(bottleQuest==6) {
+	mes "["+strcharinfo(0)+"]";
+	mes "Abel?";
+	next;
+	mes "[Abel]";
+	mes "Sim? ...";
+	mes "["+strcharinfo(0)+"]";
+	mes "Angelica está a sua procura, preoculpada com você.";
+	next;
+	mes "[Abel]";
+	mes "Pois diga a ela que eu estou bem, obrigado por ter vindo aqui.";
+	set bottleQuest,7;
+	close;
+	}
+
+	if(bottleQuest>=9&&!countitem(15020)) {
+	mes "["+strcharinfo(0)+"]";
+	mes "Abel? Poderia me ajudar?";
+	next;
+	mes "[Abel]";
+	mes "Sim? ... ";
+	mes "["+strcharinfo(0)+"]";
+	mes "A Angelica disse que o Tom poderia me fazer uma ferramenta que abrirá bueiro.";
+	mes "Porém, o Tom não se lembra dos materiais necessários, você por acaso ainda teria o papel com os materiais anotados?";
+	next;
+	mes "[Abel]";
+	mes "Sim, claro. Aqui está uma cópia.";
+	getitem 15020,1;
+	close;
+	}
+
+	mes "[Abel]";
+	mes "Está perdido...?";
+	close;
+}
+
+lighthalzen,367,315,5	script	[...]	111,{
+
+	if(!countitem(15021)||bottleQuest<8) end;
+	mes "*tisc tisc*";
+	if(rand(100)<60) {
+	misceffect 611;
+	delitem 15021,1;
+	sleep2 2000;
+	emotion e_omg,1;
+	} else misceffect 610;
+	sleep2 2000;
+	mes "... !";
+	misceffect 316;
+	sleep2 3000;
+	if(bottleQuest==12) set bottleQuest,13;
+	warp "force_1-3",100,186;
+	end;
+
+OnInit:
+	setcell "force_1-3",96,189,103,183,4,1;
+}
+
+payon,133,183,5	script	Tom	813,{
+
+	if(bottleQuest>=9) {
+	mes "[Tom]";
+		if(!countitem(15020)) {
+		mes "Não tem o papel?";
+		mes "Volte quando consegui-lo e eu poderei ajuda-lo.";
+		close;
+		}
+	if(countitem(999)>=30&&countitem(909)>=20&&countitem(612)&&Zeny>=80000) {
+	delitem 999,30;
+	delitem 909,20;
+	delitem 612,1;
+	set Zeny,Zeny-80000;
+	getitem 15021,1;
+	misceffect 154;
+	mes "Aqui está a ferramenta, ela é muito frágil e pode quebrar com facilidade, tenha cuidado.";
+	mes "Caso precise de outra é só voltar com os mesmos items.";
+	if(bottleQuest==9) set bottleQuest,10;
+	close;
+	}
+	mes "Vamos ler isto aqui...";
+	next;
+	mes "[Tom]";
+	mes "Que letra feia! Mas dá para entender...";
+	mes "Traga-me:";
+	mes "^2a2bfc- 30 Aços";
+	mes "- 20 Jellopys";
+	mes "- 1 Mini-Fornalha";
+	mes "- 80.000z^000000";
+	next;
+	mes "[Tom]";
+	mes "Quando tiver os items volte e eu criarei a ferramenta para você!";
+	close;
+	}
+
+	if(bottleQuest==8) {
+	mes "["+strcharinfo(0)+"]";
+	mes "Olá, Tom!";
+	mes "Angelica me disse que você sabe fazer a chave para abrir um bueiro.";
+	mes "Poderia me ajudar?";
+	next;
+	mes "[Tom]";
+	mes "Ah, então você é conhecido da Angelica?";
+	mes "Uma bela mulher ela, não acha?";
+	next;
+	mes "[Tom]";
+	mes "Bom, foi a muito tempo que eu fiz esta ferramenta.";
+	mes "Eu não me lembro os materiais que usei para forja-lá.";
+	mes "O Abel possui um papel com os materiais escritos,";
+	mes "se você consegui-lo eu posso forja-lá!";
+	set bottleQuest,9;
+	close;
+	}
+
+	mes "[Tom]";
+	mes "Meus braços doem ... esse trabalho é tão duro!";
+	close;
+}
+
+alde_alche,20,16,7	script	Chistian	402,{
+
+	if(bottleQuest>=17) {
+	while(1) {
+	mes "[Chistian]";
+	mes "A máquina necessita de alguns outros ingredientes para funcionar.";
+	mes "Deseja se informar sobre algum?";
+	switch(select("Resíduo de Inflamável:Resíduo de Ácido:Resíduo de Água:Resíduo de Plantas:Resíduo Negro:Não quero, obrigado.")) {
+case 1:
+	next;
+	mes "[Chistian]";
+	mes "Precisa ser combinada com ^0000FF1 Solução de Payon^000000 e ^0000FF1 Gema Vermelha^000000.";
+	close2;
+	continue;
+case 2:
+	next;
+	mes "[Chistian]";
+	mes "Precisa ser combinada com ^0000FF1 Solução de Payon^000000 e ^0000FF1 Gema Amarela^000000.";
+	close2;
+	continue;
+case 3:
+	next;
+	mes "[Chistian]";
+	mes "Precisa ser combinada com ^0000FF1 Solução de Payon^000000 e ^0000FF1 Gema Azul^000000.";
+	close2;
+	continue;
+case 4:
+	next;
+	mes "[Chistian]";
+	mes "Precisa ser combinada com ^0000FF1 Solução de Payon^000000 e ^0000FF1 Gema Azul^000000.";
+	close2;
+	continue;
+case 5:
+	next;
+	mes "[Chistian]";
+	mes "Este resíduo é mistérioso, difentes combinações podem gerar elementos variados.";
+	mes "Eu mesmo não sei a combinação correta.";
+	next;
+	mes "Pode ser combinado com ^0000FFSolução de Payon^000000, ^0000FFSolução de Morroc^000000, ^0000FFOridecon^000000, ^0000FFCogumelo Venenoso^000000, ^0000FFTodos os tipos de Gemas^000000.";
+	close2;
+	continue;
+case 6:
+	mes "[Chistian]";
+	mes "Volte caso tenha dúvidas.";
+	close;
+	} } }
+
+	if(bottleQuest<10) {
+	mes "Essa máquina sempre me dando problemas..";
+	emotion e_hmm;
+	close;
+	}
+
+	if(bottleQuest==11) {
+	mes "["+strcharinfo(0)+"]";
+	mes "Chistian?";
+	mes "Eu sou um aventureiro, pretendo entrar no laboratório dos clones.";
+	mes "Angelica me disse que você se interessa por materiais de lá.";
+	mes "Poderia me informar o que você faz?";
+	next;
+	mes "[Chistian]";
+	mes "São os resíduos que os clones carregam de suas experiências,";
+	mes "É um material muito útil para fazer misturas.";
+	mes "Com ele eu posso criar todos os Frascos de Alquimista.";
+	next;
+	mes "[Chistian]";
+	mes "Você poderia recolhê-los e em troca de um pagamento eu criaria os Frascos para você.";
+	mes "Mas só porque você é amigo da Angelica!";
+	set bottleQuest,12;
+	close;
+	}
+
+	if(bottleQuest==12) {
+	mes "[Chistian]";
+	mes "Ainda não conseguiu os resíduos?";
+	mes "Você pode entrar por Lighthalzen, a entrada está na área protegida pelos guardas.";
+	mes "Há alguns arbustos cobrindo o local.";
+	close;
+	}
+
+	if(bottleQuest==13) {
+	mes "[Chistian]";
+	mes "Então você conseguiu entrar no laboratório?";
+	mes "Você é realmente esperto e forte!";
+	next;
+	mes "[Chistian]";
+	mes "Ao meu lado existe uma máquina, é ela mixa os ingredientes.";
+	mes "Mas infelizmente não está funcionando muito bem, eu preciso de uma engrenagem para consertá-la.";
+	mes "Você poderia ir pegá-la para mim na fabrica?";
+	next;
+	if(select("Sim, claro.:Não mesmo.")==2) {
+	mes "[Chistian]";
+	mes "Bom, então eu não poderei mixar os ingredientes para você.";
+	close;
+	}
+	set bottleQuest,14;
+	next;
+	} 
+
+	if(bottleQuest==14||bottleQuest==15) {
+	mes "[Chistian]";
+	mes "Muito obrigado!";
+	mes "A fábrica encontra-se em Einbroch, você deverá falar com o Gerente.";
+	close;
+	}
+
+	if(bottleQuest==16) {
+	mes "[Chistian]";
+		if(!countitem(1083)) {
+		mes "Mas cadê a caixa??";
+		close;
+		} delitem 1083,1;
+	set bottleQuest,17;
+	misceffect 154;
+	mes "Pronto, consertada!";
+	mes "Muito obrigado.";
+	close;
+	}
+}
+
+ein_in01,48,232,2	script	Gerente	853,{
+
+	if(bottleQuest==14) {
+	mes "["+strcharinfo(0)+"]";
+	mes "O Chistian pediu-me para pegar uma engrenagem na fábrica.";
+	mes "Você poderia me informar onde ela está?";
+	mes "[Gerente]";
+	mes "A ENGRENAGEM DO Chistian?!";
+	mes "Eu a acabei de mandar para ele pelo meu funcionário.";
+	mes "Se você correr ainda pode encontrar-lo na estação de trêm da cidade, o seu nome é Grescon.";
+	next;
+	mes "[Gerente]";
+	mes "Para que ele te entregue a caixa diga o número da caixa a ele.";
+	set bottleQuestRdmNmb$,rand(999999)+"-"+rand(999);
+	mes bottleQuestRdmNmb$;
+	set bottleQuest,15;
+	close;
+	}
+
+	if(bottleQuest==15) {
+	mes "[Gerente]";
+	mes "Esqueceu o número da caixa?";
+	mes bottleQuestRdmNmb$;
+	close;
+	}
+
+	mes "[Gerente]";
+	mes "Estou tão feliz, minha fábrica está prosperando...";
+	close;
+}
+
+airport,162,43,5	script	Grescon	810,{
+
+	if(bottleQuest==15) {
+	mes "["+strcharinfo(0)+"]";
+	mes "GRESCOOON!!";
+	next;
+	mes "[Grescon]";
+	mes "Pois não?!";
+	emotion e_omg;
+	next;
+	mes "["+strcharinfo(0)+"]";
+	mes "Eu preciso da caixa do Chistian que o Gerente o mandou levar.";
+	next;
+	mes "[Grescon]";
+	mes "Poderia me dizer o número dela?";
+	input @number$;
+	if(@number$!=bottleQuestRdmNmb$) {
+	mes "[Grescon]";
+	mes "Infelizmente eu não tenho nenhuma caixa com esse número.";
+	close;
+	}
+	mes "[Grescon]";
+	mes "Ahh, aqui está ela, pegue.";
+	getitem 1083,1;
+	set bottleQuestRdmNmb$,"";
+	set bottleQuest,16;
+	close;
+	}
+
+	mes "[Grescon]";
+	mes "Como esse trêm demora... ";
+	close;
+}
+
+alde_alche,19,18,5	script	...	111,{
+
+function MixResidue;
+deletearray @Mix[0],5;
+
+	if(bottleQuest<17) {
+	mes "*....Error.....*";
+	close;
+	}
+
+	mes "[...]";
+	mes "...........";
+	while(1) {
+	switch(select("- Finalizar Mistura:Inserir Resíduo:Inserir Gema:Inserir Solução:Outro Material:..."))
+	{
+
+case 1:
+//@Mix[1] = RISIDUO
+//@Mix[2] = GEMA
+//@Mix[3] = SOLUÇÃO
+//@Mix[4] = OUTRO
+
+	if(@Mix[1]==1&&@Mix[2]==2&&@Mix[3]==2&&!@Mix[4]) MixResidue(2,7135,15022,716,1089); // Fogo Grego
+	if(@Mix[1]==2&&@Mix[2]==1&&@Mix[3]==2&&!@Mix[4]) MixResidue(2,7136,15023,715,1089); // Frasco Ácido
+	if(@Mix[1]==3&&@Mix[2]==3&&@Mix[3]==2&&!@Mix[4]) MixResidue(2,7138,15024,717,1089); // Marina
+	if(@Mix[1]==4&&@Mix[2]==3&&@Mix[3]==2&&!@Mix[4]) MixResidue(2,7137,15025,717,1089); // Planta
+	if(@Mix[1]==5&&@Mix[2]==2&&@Mix[3]==1&&@Mix[4]==1) MixResidue(2,678,15026,716,1088,1069); // Residuo Negro: Frasco de Veneno
+	if(@Mix[1]==5&&@Mix[2]==3&&@Mix[3]==2&&@Mix[4]==2) MixResidue(2,7139,15026,717,1089,984); // Residuo Negro: Frasco de Revestimento
+	mes "[...]";
+	mes "*FAIL*";
+	misceffect 611;
+	deletearray @Mix[0],5;
+	close2; continue;
+
+case 2: // MIX 1
+		switch(select("Resíduo Inflamável:Resíduo de Ácido:Resíduo de Água:Resíduo de Plantas:Resíduo Negro:Voltar"))
+		{
+	case 1:	
+	MixResidue(1,1,1,"Resíduo Inflamável",15022);
+	continue;
+
+	case 2:
+	MixResidue(1,1,2,"Resíduo de Ácido",15023); 
+	continue;
+
+	case 3:
+	MixResidue(1,1,3,"Resíduo de Água",15024); 
+	continue;
+
+	case 4:
+	MixResidue(1,1,4,"Resíduo de Plantas",15025); 
+	continue;
+
+	case 5:
+	MixResidue(1,1,5,"Resíduo Negro",15026);
+	continue;
+
+	case 6: continue;
+		}
+case 3: // MIX 2
+		switch(select("Gema Amarela:Gema Vermelha:Gema Azul:Voltar"))
+		{
+	case 1:
+		MixResidue(1,2,1,"Gema Amarela",715);
+		continue;
+	case 2:
+		MixResidue(1,2,2,"Gema Vermelha",716);
+		continue;
+	case 3:
+		MixResidue(1,2,3,"Gema Azul",717);
+		continue;
+	case 4: continue;
+		}
+case 4: // MIX 3
+		switch(select("Solução de Morroc:Solução de Payon:Voltar"))
+		{
+	case 1:
+		MixResidue(1,3,1,"Solução de Morroc",1088);
+		continue;
+	case 2:	
+		MixResidue(1,3,2,"Solução de Payon",1089);
+		continue;
+	case 3: continue;
+		}
+case 5: // MIX 4
+		switch(select("Cogumelo Venenoso:Oridecon:Voltar"))
+		{
+	case 1:
+		MixResidue(1,4,1,"Cogumelo Venenoso",1069);
+		continue;
+	case 2:	
+		MixResidue(1,4,2,"Oridecon",984);
+		continue;
+	case 3: continue;
+		}
+case 6:
+	mes "[...]";
+	mes ". . .";
+	close2; continue;
+
+	}
+
+}
+
+
+
+function	MixResidue	{
+
+
+	switch(getarg(0)) {
+
+case 1:
+	mes "^0000FF- "+getarg(3);
+		if(!countitem(getarg(4))) {
+		mes "*NOITEM*";
+		misceffect 611;
+		close2; return;
+		} misceffect 610;
+		set @Mix[getarg(1)],getarg(2);
+		return;
+case 2:
+	mes "^0000FFTaxa por mistura: 80.000z";
+	mes "Fórmula válida....";
+	next;
+	while(1) {
+	switch(select("Fazer uma Mistura:Usar Todos Ingredientes:Cancelar")) {
+case 1:
+	if(!countitem(getarg(2))||!countitem(getarg(3))||!countitem(getarg(4))&&Zeny<80000) {
+FAIL1:
+	mes "[...]";
+	mes "*NO ITEM*";
+	misceffect 611;
+	set @QuantityMixed,0;
+	close;
+	} if(getarg(5,0)) if(!countitem(getarg(5))) goto FAIL1;
+	getitem getarg(1),1;
+	delitem getarg(2),1;
+	delitem getarg(3),1;
+	delitem getarg(4),1;
+	if(getarg(5,0)) delitem getarg(5),1;
+	set Zeny,Zeny-80000;
+	misceffect 305;
+	set @QuantityMixed,@QuantityMixed+1;
+	mes @QuantityMixed+" ^0000FF"+getitemname(getarg(1))+"^000000 Mixed";
+	continue;
+case 2:
+	while(1) {
+	if(!countitem(getarg(2))||!countitem(getarg(3))||!countitem(getarg(4))&&Zeny<80000) {
+FAIL2:
+	mes "[...]";
+	mes "*NO ITEM*";
+	misceffect 611;
+	set @QuantityMixed,0;
+	close;
+	} if(getarg(5,0)) if(!countitem(getarg(5))) goto FAIL2;
+	getitem getarg(1),1;
+	delitem getarg(2),1;
+	delitem getarg(3),1;
+	delitem getarg(4),1;
+	if(getarg(5,0)) delitem getarg(5),1;
+	set Zeny,Zeny-80000;
+	misceffect 305;
+	set @QuantityMixed,@QuantityMixed+1;
+	mes @QuantityMixed+" ^0000FF"+getitemname(getarg(1))+"^000000 Mixed";
+	continue;
+	}
+	}
+	}
+}
+}
+}
+
+pay_arche,126,93,5	shop	Vendedor de Coisas	92,1088:100:1089:100
+
+
+
+
+//===== eAthena Script =======================================
+//= Custom Dungeon Warps
+//===== By: ==================================================
+//= Mooka / Sakura
+//===== Current Version: =====================================
+//= 1.0
+//===== Compatible With: =====================================
+//= Any eAthena Version
+//===== Description: =========================================
+//= Warp Points for Custom Dungeon
+//===== Additional Comments: =================================
+//= 1.0 - Primeiros Warps
+//= 2.0 - Warps completos
+//= 2.5 - ESSE TROÇO FOI CHATO PRA CARAMBA DE SE FAZER @_@~ [by Sakura]
+//============================================================
+
+force_1-3,100,164,0	warp	dungeoncus01	1,1,force_1-3,100,142
+force_1-3,100,147,0	warp	dungeoncus02	1,1,force_1-3,100,169
+force_1-3,90,138,0	warp	dungeoncus03	1,1,force_1-3,64,138
+force_1-3,69,138,0	warp	dungeoncus04	1,1,force_1-3,95,138
+force_1-3,109,138,0	warp	dungeoncus05	1,1,force_1-3,135,138
+force_1-3,130,138,0	warp	dungeoncus06	1,1,force_1-3,104,138
+force_1-3,100,128,0	warp	dungeoncus07	1,1,force_1-3,100,15
+force_1-3,100,11,0	warp	dungeoncus08	1,1,force_1-3,100,133
+force_1-3,140,147,0	warp	dungeoncus09	1,1,force_1-3,139,104
+force_1-3,139,109,0	warp	dungeoncus10	1,1,force_1-3,140,142
+force_1-3,180,129,0	warp	dungeoncus11	1,1,force_1-3,180,104
+force_1-3,180,109,0	warp	dungeoncus12	1,1,force_1-3,180,133
+force_1-3,170,99,0	warp	dungeoncus13	1,1,force_1-3,104,99
+force_1-3,109,99,0	warp	dungeoncus14	1,1,force_1-3,175,99
+force_1-3,180,90,0	warp	dungeoncus15	1,1,force_1-3,180,55
+force_1-3,180,50,0	warp	dungeoncus16	1,1,force_1-3,180,95
+force_1-3,170,59,0	warp	dungeoncus17	1,1,force_1-3,104,59
+force_1-3,109,59,0	warp	dungeoncus18	1,1,force_1-3,175,59
+force_1-3,60,90,0	warp	dungeoncus19	1,1,force_1-3,60,64
+force_1-3,60,69,0	warp	dungeoncus20	1,1,force_1-3,60,95
+force_1-3,60,109,0	warp	dungeoncus21	1,1,force_1-3,60,133
+force_1-3,60,128,0	warp	dungeoncus22	1,1,force_1-3,60,104
+force_1-3,90,59,0	warp	dungeoncus23	1,1,force_1-3,64,59
+force_1-3,69,59,0	warp	dungeoncus24	1,1,force_1-3,95,59
+force_1-3,130,99,0	warp	dungeoncus25	1,1,force_1-3,24,99
+force_1-3,29,99,0	warp	dungeoncus26	1,1,force_1-3,135,99
+force_1-3,140,50,0	warp	dungeoncus27	1,1,force_1-3,59,24
+force_1-3,59,29,0	warp	dungeoncus28	1,1,force_1-3,140,50
+force_1-3,170,179,0	warp	dungeoncus29	1,1,force_1-3,24,179
+force_1-3,29,179,0	warp	dungeoncus30	1,1,force_1-3,175,179
+force_1-3,180,170,0	warp	dungeoncus31	1,1,force_1-3,179,24
+force_1-3,179,29,0	warp	dungeoncus32	1,1,force_1-3,180,175
+force_1-3,130,19,0	warp	dungeoncus33	1,1,force_1-3,64,19
+force_1-3,69,19,0	warp	dungeoncus34	1,1,force_1-3,135,19
+force_1-3,10,99,0	warp	dungeoncus35	1,1,force_1-3,19,15
+force_1-3,19,10,0	warp	dungeoncus36	1,1,force_1-3,15,99
+force_1-3,19,147,0	warp	dungeoncus37	1,1,force_1-3,19,184
+force_1-3,19,189,0	warp	dungeoncus38	1,1,force_1-3,19,142
+force_1-3,19,29,0	warp	dungeoncus39	1,1,force_1-3,19,55
+force_1-3,19,50,0	warp	dungeoncus40	1,1,force_1-3,19,24
+
+// MOBS
+
+force_1-3,0,0,0,0	monster	--ja--	1950,30,0,0
+force_1-3,0,0,0,0	monster	--ja--	1951,10,0,0
+force_1-3,0,0,0,0	monster	--ja--	1952,2,0,0

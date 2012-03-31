@@ -1,0 +1,150 @@
+//|==================================================================================|
+//|	      ___           ___           ___           ___           ___            |
+//|	     /\  \         /\  \         /\  \         /|  |         /\  \           |
+//|	    |::\  \       /::\  \       /::\  \       |:|  |        /::\  \          |
+//|	    |:|:\  \     /:/\:\  \     /:/\:\  \      |:|  |       /:/\:\  \         |
+//|	  __|:|\:\  \   /:/  \:\  \   /:/  \:\  \   __|:|  |      /:/ /::\  \        |
+//|	 /::::|_\:\__\ /:/__/ \:\__\ /:/__/ \:\__\ /\ |:|__|____ /:/_/:/\:\__\       |
+//|	 \:\--\  \/__/ \:\  \ /:/  / \:\  \ /:/  / \:\/:::::/__/ \:\/:/  \/__/       |
+//|	  \:\  \        \:\  /:/  /   \:\  /:/  /   \::/__/       \::/__/            |
+//|	   \:\  \        \:\/:/  /     \:\/:/  /     \:\  \        \:\  \            |
+//|	    \:\__\        \::/  /       \::/  /       \:\__\        \:\__\           |
+//|	     \/__/         \/__/         \/__/         \/__/         \/__/           |
+//| ================================================================================ |
+//|   Script Desenvolvido Por Mooka | eAthena | Por Favor, Não Retire Os Créditos.   |
+//| ================================================================================ |
+//|[1.0.4] : Adicionado opção de filto de mensagens. (!filtro#id)		     |
+//|[1.0.3] : Adicionado Chat Privado entre as alianças. (msg#uc#1,msg#uc#2,msg#uc#3) |
+//|[1.0.2] : Delay no chat da aliança adicionado.				     |
+//|[1.0.1] : Desenvolvido msg#u. (Msg para membros da Aliança)			     |
+//|[1.0.0] : Desenvolvido msg#g. (Msg do Guild Master para membros da Guild)	     |
+//|==================================================================================|
+
+//========================//
+// VERSÃO COM PROBLEMAS   //
+//========================//
+// VERSÃO COM PROBLEMAS   //
+//========================//
+
+-	script	msg#g	-1,{
+
+OnWhisperGlobal:
+	if(getguildmasterid(getcharid(2)) != getcharid(0)) end;
+	set .@GID,getcharid(2);
+	set .@whispervar$,@whispervar0$;
+		if(getd(".time_gmsg"+getcharid(2))!=gettime(2))
+		{
+		query_sql("select account_id from guild_member where guild_id="+.@GID+" and online=1",@Gmsg_L);
+		setd ".time_gmsg"+getcharid(2),gettime(2);
+		} copyarray .@Gmsg_L,@Gmsg_L,getarraysize(@Gmsg_L);
+			for(set .@j,0;.@j<=getarraysize(.@Gmsg_L);set .@j,.@j+1)
+			{
+			if(!attachrid(.@Gmsg_L[.@j])) continue;
+			announce "[Guild Master] "+.@whispervar$,bc_self,0xf5deb3;
+			} end;
+}
+
+function	script	AllyMsgChannel	{
+
+
+	if(@whispervar0$=="!on") { set @fchat,6; dispbottom "[ Chat da Aliança Ativado. ]"; end; }
+	if(@whispervar0$=="!off") { set @fchat,0; dispbottom "[ Chat da Aliança Desativado. ]"; end; }
+	if(@whispervar0$=="!filtro")
+	{
+	set .@fchat,@whispervar0$;
+	if(.@fchat<0 && .@fchat>7) { dispbottom "[AVISO] Sintase do comando incorreta, valores válidos entre 0 e 7."; }
+	dispbottom "[AVISO] --- VALORES do comando:";
+	dispbottom "[AVISO] === 1ª ally: 1; 2ª ally: 2; 3ª ally: 4;";
+	dispbottom "[AVISO] === 1ª & 2ª ally: 3";
+	dispbottom "[AVISO] === 1ª & 3ª ally: 5";
+	dispbottom "[AVISO] === 2ª & 3ª ally: 6";
+	dispbottom "[AVISO] === Todas ally: comando !on";
+	dispbottom "[ Filtro ativado ]";
+	end;		
+	}	if(!@i)	{
+			dispbottom "[AVISO] Envie !off para desativar o chat. (!on para ativar)";
+			dispbottom "[AVISO] !filtro: Comando para filtrar as mensagens.";
+			}
+
+	set .@GID,getcharid(2);
+	set .@whispervar$,@whispervar0$;
+	set .@Umsg_PN$,strcharinfo(0);
+	set .@Umsg_GN$,strcharinfo(2);
+		if(getd("$@time_umsg"+.@GID)!=gettime(2))
+		{
+		query_sql("select alliance_id from guild_alliance where guild_id="+.@GID+" and opposition=0 order by alliance_id asc",@AlID);
+		query_sql("select account_id from guild_member where guild_id="+.@GID+" and online=1",.@UmsgL);
+		query_sql("select account_id from guild_member where guild_id="+@AlID[0]+" and online=1",.@UmsgL1);
+		query_sql("select account_id from guild_member where guild_id="+@AlID[1]+" and online=1",.@UmsgL2);
+		query_sql("select account_id from guild_member where guild_id="+@AlID[2]+" and online=1",.@UmsgL3);
+		for(set @i,0;@i <= getarraysize(@UmsgL);set @i,@i+1) setd ".Umsg_L"+.@GID+"["+@i+"]",.@UmsgL[@i];
+		for(set @i,0;@i <= getarraysize(.@UmsgL1);set @i,@i+1) setd ".UmsgL1_"+.@GID+"["+@i+"]",.@UmsgL1[@i];
+		for(set @i,0;@i <= getarraysize(.@UmsgL2);set @i,@i+1) setd ".UmsgL2_"+.@GID+"["+@i+"]",.@UmsgL2[@i];
+		for(set @i,0;@i <= getarraysize(.@UmsgL3);set @i,@i+1) setd ".UmsgL3_"+.@GID+"["+@i+"]",.@UmsgL3[@i];
+		setd "$@time_umsg"+.@GID,gettime(2);
+		}	if((gettime(1)-@uDelay)<=.@ChatDelay)
+			{
+			dispbottom "[AVISO] Aguarde o delay de "+$@ChatDelay+" segundos por mensagem.";
+			set @uDelay,gettime(1);
+			end;
+			}
+				// guildself ahuhau
+				for(set .@j,0;getd(".UmsgL_"+.@GID+"["+.@j+"]")!=0;set .@j,.@j+1)
+				{
+				if(!attachrid(getd(".UmsgL1_"+.@GID+"["+.@j+"]"))) continue;
+				if(getarg(0)==3) dispbottom "[@Todos#"+.@Umsg_GN$+"|"+.@Umsg_PN$+"] "+.@whispervar$; else
+						 dispbottom "[@"+getarg(0)+"ª.Ally#"+.@Umsg_GN$+"|"+.@Umsg_PN$+"] "+.@whispervar$;
+				}
+
+				// Mensagens para aliança 1
+				for(set .@j,0;getd(".UmsgL1_"+.@GID+"["+.@j+"]")!=0 && @fchat&1 && @fchat&3 && @fchat&5;set .@j,.@j+1)
+				{
+				if(!attachrid(getd(".UmsgL1_"+.@GID+"["+.@j+"]"))) continue;
+				if(!@fchat&1) continue;
+				if(getarg(0)==3) dispbottom "[@Todos#"+.@Umsg_GN$+"|"+.@Umsg_PN$+"] "+.@whispervar$; else
+						 dispbottom "[@"+getarg(0)+"ª.Ally#"+.@Umsg_GN$+"|"+.@Umsg_PN$+"] "+.@whispervar$;
+				}
+
+				// Mensagens para aliança 2
+				for(set .@j,0;getd(".UmsgL2_"+.@GID+"["+.@j+"]")!=0 && @fchat&2 && @fchat&3 && @fchat&6;set .@j,.@j+1)
+				{
+				if(!attachrid(getd(".UmsgL2_"+.@GID+"["+.@j+"]"))) continue;
+				if(!@fchat&2) continue;
+				if(getarg(0)==3) dispbottom "[@Todos#"+.@Umsg_GN$+"|"+.@Umsg_PN$+"] "+.@whispervar$; else
+						 dispbottom "[@"+getarg(0)+"ª.Ally#"+.@Umsg_GN$+"|"+.@Umsg_PN$+"] "+.@whispervar$;
+				}
+				// Mensagens para aliança 3
+				for(set .@j,0;getd(".UmsgL3_"+.@GID+"["+.@j+"]")!=0 && @fchat&4 && @fchat&5 && @fchat&6;set .@j,.@j+1)
+				{
+				if(!attachrid(getd(".UmsgL3_"+.@GID+"["+.@j+"]"))) continue;
+				if(!@fchat&3) continue;
+				if(getarg(0)==3) dispbottom "[@Todos#"+.@Umsg_GN$+"|"+.@Umsg_PN$+"] "+.@whispervar$; else
+						 dispbottom "[@"+getarg(0)+"ª.Ally#"+.@Umsg_GN$+"|"+.@Umsg_PN$+"] "+.@whispervar$;
+				}
+}
+
+
+-	script	msg#u	-1,{
+
+OnWhisperGlobal:
+	callfunc("AllyMsgChannel",3);
+
+OnInit:
+set $@ChatDelay,3; // 3 segundos de delay.
+}
+
+-	script	msg#u1	-1,{
+OnWhisperGlobal:
+	callfunc("AllyMsgChannel",0);
+}
+
+-	script	msg#u2	-1,{
+OnWhisperGlobal:
+	callfunc("AllyMsgChannel",1);
+}
+
+-	script	msg#u3	-1,{
+OnWhisperGlobal:
+	callfunc("AllyMsgChannel",2);
+}
+

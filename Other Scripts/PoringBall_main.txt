@@ -1,0 +1,891 @@
+// Script Desenvovido por Sakura(http://www.eathena.ws/board/View-Member-Profile-m133327.html)
+// Script Traduzido Por Mooka, Membros da Staff WodRO
+
+quiz_02,349,390,4	script	Organizador#orga_ball	869,{
+
+ //cutin "lhz_diguts02",2;
+ set @palette, getlook(7);
+ if ($@state_match == 1) goto OnConfirmation;
+ if ($@state_match >= 2) goto OnMatchinplay;
+
+Showgamerules:
+ mes "[Organizador]";
+ mes "Poring Ball é um jogo simples,";
+ mes "você tem que mandar o poring para o gol adversário.";
+ mes "O time que fizer o maior número de gols vence.";
+ next;
+ mes "[Organizador]";
+ mes "Mas antes de ir para o campo, duas equipes devem ser feitas";
+ mes "Todos os membros da equipe devem estar no mesmo grupo.";
+ mes "Então uma pessoa de cada grupo irá se increver com os assistentes.";
+ mes "quando as duas equipes estiverem inscritas, você receberá uma confirmação.";
+ mes "Uma vez que as equipes estão confirmadas, todos os jogadores devem vir aqui,para serem enviados aos treinadores.";
+ mes "Os treinadores irão lhe enviar ao campo, o jogo não vai esperar por você, estão se apresse!";
+ next;
+ mes "[Organizador]";
+ mes "Se as inscrições atingirem o tempo limite, elas serão canceladas para dar vagas para outras equipes.";
+ next;
+ goto OnClose;
+
+// OnSubscriptionteam called by the assistants during the subscription of each team
+OnSubscriptionteam:
+ // if the 2 teams are subscribed
+
+ if (($@redteamID!=0) && ($@blueteamID!=0) && (getpartyname($@redteamID)!="null") && (getpartyname($@blueteamID)!="null")) {
+  announce "Organizador : Os dois times estão prontos. : "+getpartyname($@blueteamID)+" e "+getpartyname($@redteamID)+".",bc_yellow|bc_map;
+  announce "Organizador : Você tem 1 minuto para que um membro de cada equipe venha confirmar a inscrição.",bc_yellow|bc_map;
+  if ($@state_match!=1) { 
+   set $@state_match, 1;
+   stopnpctimer;
+   initnpctimer;
+  }
+ }
+ end;
+
+OnConfirmation:
+ if ((getcharid(1)!=$@redteamID) && (getcharid(1)!=$@blueteamID)) {
+  // if the player isn't in one of the teams send him back to the game rules.
+  goto Showgamerules;
+ }
+
+ if (getcharid(1)==$@redteamID) {
+  // confirm if the player is part of the red team
+  mes "[Organizador]";
+  mes "Obrigada por confirmar com o time vermelho.";
+  if ($@redconfirmation==1) goto OnClose; // if we have already confirmed, no need to go further.
+  set $@redconfirmation, 1;
+  close2;
+ }
+ // else
+ if (getcharid(1)==$@blueteamID) {
+  // confirm if player is part of the blue team
+  mes "[Organizador]";
+  mes "Obrigada por confirmar com o Time Azul";
+  if ($@blueconfirmation==1) goto OnClose; // if we have already confirmed, no need to go further.
+  set $@blueconfirmation, 1;
+  close2;
+ }
+
+ // verify that the groups haven't been sorted
+ if ((getpartyname($@redteamID)=="null") || (getpartyname($@blueteamID)=="null")) {
+  announce "Organizador: As equipes não são validas, jogo cancelado.",bc_yellow|bc_map;
+  stopnpctimer;
+  callsub OnMatchcancellation;
+  end;
+ }
+
+ if (($@state_match!=2) && ($@blueconfirmation==1) && ($@redconfirmation==1)) {
+  stopnpctimer;
+  announce "Organizador: O jogo começará em breve, todos os jogares devem falar comigo para irem para o campo.",bc_yellow|bc_map;
+  set $@state_match, 2;
+  donpcevent "TimerInitMatch::OnStart";
+ }
+ cutin "",255;
+ end;
+
+OnTimer60000:
+ announce "Organizador: O tempo para confirmação expirado. Jogo Cancelado...",bc_npc|bc_map;
+ callsub OnMatchcancellation;
+ end;
+
+OnMatchcancellation:
+ set $@state_match, 0;
+ set $@blueteamID, 0;
+ set $@redteamID, 0;
+ set $@redconfirmation, 0;
+ set $@blueconfirmation, 0;
+ set $@isballonfield, 0;
+ set $@teampossessingballID, 0;
+ return;
+
+OnMatchinplay:
+ if (getcharid(1)==$@redteamID) { // if the player is from the red team
+  mes "[Organizador]";
+  mes "Pronto pra jogar?";
+  switch (select("Eu quero para o campo.","Eu quero cancelar o jogo.")) {
+   case 1:
+    // Test actual palette
+    if (@palette != $paletteRed) {
+     if (@palette != $paletteBlue) {
+      // The player isn't wearing a suit, you need to save his suit at the lockers, to give it back after
+      set savePalette, @palette;
+     }
+     setlook 7, $paletteRed;
+    }
+
+    savepoint "quiz_02",335,345;
+    percentheal 100,100;
+    warp "quiz_02",335,345;
+    goto OnClose;
+   case 2:
+    cutin "",255;
+    cutin "lhz_diguts07",2;
+    set $@redconfirmation,2;
+    announce "Organizador : "+strcharinfo(0)+" do time vermelho, pediu para a partida ser cancelada.",bc_npc|bc_map;
+  }
+ } else if (getcharid(1)==$@blueteamID) { // if the player is from the blue team
+  mes "[Organizador]";
+  mes "Pronto para jogar?";
+  switch (select("Eu quero ir para o campo.","Eu quero cancelar o jogo.")) {
+   case 1:
+    // Test actual palette
+    if (@palette != $paletteBlue) {
+     if (@palette != $paletteRed) {
+      // The player isn't wearing a suit, you need to save his suit at the lockers,to give it back after
+      set savePalette, @palette;
+     }
+     setlook 7, $paletteBlue;
+    }
+
+    savepoint "quiz_02",364,345;
+     percentheal 100,100;
+    warp "quiz_02",364,345;
+    goto OnClose;
+   case 2:
+    cutin "",255;
+    cutin "lhz_diguts07",2;
+    set $@blueconfirmation,2;
+    announce "Organizador : "+strcharinfo(0)+" do time azul, pediu para a partida ser cancelada.",bc_npc|bc_map;
+  }
+ } else {
+  // if the player isn't in one of the teams send him back to the game rules.
+  goto Showgamerules;
+ }
+ if (($@blueconfirmation==2) && ($@redconfirmation==2)) {
+  announce "Organizador : Conforme o desejo dos times, a partida está cancelada!",bc_npc|bc_map;
+  callsub OnMatchcancellation;
+  donpcevent "TimerMatchcancellation::OnMatchcancellation";
+  end;
+ }
+ goto OnClose;
+
+// At the start of map server :
+OnInit:
+ set $paletteRed, 79;
+ set $paletteBlue, 78;
+ // Warp all the players from map ball2 near the Organizador.
+ callsub OnMatchcancellation;
+ end;
+
+OnClose:
+ close2;
+ cutin "",255;
+ end;
+}
+
+
+quiz_02,363,365,4	script	Vermelho#ass_coach_R	911,{
+
+ // If a match is in play
+ if ($@state_match >= 2) {
+  mes "[Assistente Vermelho]";
+  mes "As inscrições não estão disponíveis no momento porque há um jogo em andamento, tente novamente em alguns minutos.";
+  close;
+ }
+
+ // Does the player belong to a group?
+ if (getcharid(1)==0) {
+  mes "[Assistente vermelho]";
+  mes "As inscrições são para um grupo, e você não está em um grupo. Volte com seus amigos.";
+  close;
+ }
+
+ // Isn't the group of the player subscribed as the blue team?
+ if (getcharid(1)==$@blueteamID) {
+  mes "[Assistente Vermelho]";
+  mes "Ei! Jogador da equipe oponente... Prepare-se para enfrentar o melhor time.";
+  mes "A formidável Equipe Vermelha.";
+  close;
+ }
+
+ // If a team is already subscribed, and that team still exists
+ if (($@redteamID!=0) && (getpartyname($@redteamID)!="null")) {
+
+  // if the player belongs to that team that's already subscribed
+  if ($@redteamID==getcharid(1)) {
+   mes "[Assistente Vermelho]";
+   mes "Você deseja cancelar sua equipe?";
+   next;
+   if (select("Sim, eu quero parar o jogo.","Não, nós vamos esperar.")==2) close;
+   // if the player wishes to unsubscribe their team
+   announce "Time "+getpartyname($@redteamID)+" foi fechado. Não existe mais time vermelho!",bc_yellow|bc_map;
+   set $@redteamID, 0;
+   close;
+  }
+  mes "[Assistente Vermelho]";
+  mes "Uma equipe já está inscrita, é o time "+getpartyname($@redteamID)+".";
+  close;
+ }
+
+ // if there are no teams subscribed and that the subscriptions are open
+ mes "[Assistente Vermelho]";
+ mes "Você deseja increver sua equipe?";
+ next;
+ if (select("Sim, nós queremos nos inscrever.","Não.")==2) close;
+
+ // Team subscription
+ if ($@redteamID==0 || (getpartyname($@redteamID)=="null")) {
+  set $@redteamID, getcharid(1);
+  mes "[Assistente Vermelho]";
+  mes "Seu time está inscrito. Boa Sorte.";
+  announce getpartyname($@redteamID)+" se inscreveu como time vermelho!",bc_yellow|bc_map;
+  close2;
+  doevent "Organizador#orga_ball::OnSubscriptionteam";
+ } else {
+  mes "[Assistente Vermelho]";
+  mes "Sinto muito, outro time se increveu antes de você...";
+  close2;
+ }
+ end;
+
+}
+
+quiz_02,336,365,4	script	Azul#ass_coach_B	912,{
+
+ // If a match is in play
+ if ($@state_match >= 2) {
+  mes "[Assistente Azul]";
+  mes "Incrições não disponíveis no momento porque há um outro jogo em andamento. Tente novamente mais tarde.";
+  close;
+ }
+
+ // Does the player belong to a group?
+ if (getcharid(1)==0) {
+  mes "[Assiste Azul]";
+  mes "As inscrições são para grupos, e você não está em um grupo. Volte com seus amigos!!";
+  close;
+ }
+
+ // Isn't the group of the player subscribed as the red team?
+ if (getcharid(1)==$@redteamID) {
+  mes "[Assistente Azul]";
+  mes "Ei! Jogador da equipe oponente... Prepare-se para enfrentar o melhor time.";
+  mes "A formidável Equipe Azul.";
+  close;
+ }
+
+ // If a team is already subscribed, and that team still exists
+ if (($@blueteamID!=0) && (getpartyname($@blueteamID)!="null")) {
+  // if the player belongs to that team that's already subscribed
+  if ($@blueteamID==getcharid(1)) {
+   mes "[Assistente Azul]";
+   mes "Você quer cancelar sua equipew";
+   next;
+   if (select("Sim, eu quero parar o jogo.","Não, nós vamos esperar.")==2) close;
+   // if the player wishes to unsubscribe their team
+   announce "Time "+getpartyname($@blueteamID)+" se dissolveu. Não existe mais equipe azul!",bc_yellow|bc_map;
+   set $@blueteamID, 0;
+   close;
+  }
+  mes "[Assistente Azul]";
+  mes "Um Time já está inscrito, é o time "+getpartyname($@blueteamID)+".";
+  close;
+ }
+
+ // if there are no teams subscribed and that the subscriptions are open
+ mes "[Assistente Azul]";
+ mes "Você deseja inscrever seu time?";
+ next;
+ if (select("Sim, queremos nos inscrever.","Não.")==2) close;
+
+ // Team subscription
+ if ($@blueteamID==0 || (getpartyname($@blueteamID)=="null")) {
+  set $@blueteamID, getcharid(1);
+  mes "[Assistente Azul]";
+  mes "Seu time está inscrito. Boa Sorte.";
+  announce getpartyname($@blueteamID)+" se inscreveu como time azul!",bc_yellow|bc_map;
+  close2;
+  doevent "Organizador#orga_ball::OnSubscriptionteam";
+ } else {
+  mes "[Assistente Azul]";
+  mes "Sinto muito. Outra equipe se inscreveu antes de você...";
+  close2;
+ }
+ end;
+}
+
+
+quiz_02,326,336,4	script	Red Coach#coach_R	911,{
+
+ mes "[Treinador Vermelho]";
+ if (getcharid(1)!=$@redteamID) {
+  mes "Parece que você não tem nada pra fazer aqui...";
+  close2;
+  goto OnLeave;
+ }
+
+ mes "Olá, eu sou o treinador do time vermelho!";
+ next;
+ percentheal 100,20;
+ switch(select("Vá para o campo","Sair","Cancelar")) {
+  case 1:
+   // If the match begins, warp immediately,
+   if ($@state_match==2) goto OnReadyformatch;
+   // otherwise, determine waiting time before being rewarped on the field
+   set @waiting_time, 5000;
+   if ($@state_match==3) {
+    mes "[Treinador Vermelho]";
+    mes "Vocè será enviado ao campo em "+(@waiting_time/1000)+ " segundos, esteja pronto!";
+    close2;
+    addtimer @waiting_time, "Red Coach#coach_R::OnReadyformatch";
+   }
+   break;
+  case 2:
+   goto OnLeave;
+   break;
+  case 3: 
+   break;
+ }
+ close;
+
+OnLeave:
+ warp "quiz_02",350,374;
+ close;
+
+// Warp on the field
+OnReadyformatch:
+ set @poringBallAura, 0;
+ warp "ball2",66,56;
+ end;
+}
+
+
+quiz_02,373,336,4	script	Time Azul#coach_B	912,{
+
+ mes "[Treinador Azul]";
+ if (getcharid(1)!=$@blueteamID) {
+  mes "Parece que você não tem nada para fazer aqui...";
+  close2;
+  goto OnLeave;
+ }
+ mes "Olá, eu sou o treinador do time azul!";
+ next;
+ percentheal 100,20;
+ switch(select("Leve-me para o campo!","Tire-me daqui.","Cancelar")) {
+  case 1:
+   // If the match begins, warp immediately,
+   if ($@state_match==2) goto OnReadyformatch;
+   // otherwise, determine waiting time before being rewarped on the field 
+   else if ($@state_match==3) {
+    set @waiting_time, 5000;
+    mes "[Treinador do Time Azul]";
+    mes "Você será enviado para o campo em "+(@waiting_time/1000)+ " segundos, prepare-se!";
+    close2;
+    addtimer @waiting_time, "Time Azul#coach_B::OnReadyformatch";
+   }
+   break;
+  case 2:
+   goto OnLeave;
+   break;
+  case 3: 
+   break;
+ }
+ close;
+
+OnLeave:
+ warp "quiz_02",350,374;
+ close;
+
+// Warp on the field
+OnReadyformatch:
+ set @poringBallAura, 0;
+ warp "ball2",54,56;
+ close;
+}
+
+
+ball2,0,0,0	script	TimerInitMatch	-1,{
+
+OnStart:
+ // countdown before the match begins
+ set $@teampossessingballID, 0;
+ set $@score_blue_match, 0;
+ set $@score_red_match, 0;
+ stopnpctimer; // normally pointless, but seeing the consequences of a npc timer, we won't take a chance.
+ initnpctimer;
+ announce "Partida irá começar em 30 segundos.",bc_npc|bc_map;
+ //doevent "Ball::OnReturntomiddle";
+ end;
+OnTimer5000:
+ announce "Partida irá começar em 25 segundos.",bc_npc|bc_map;
+ end;
+OnTimer10000:
+ announce "Partida irá começar em 20 segundos.",bc_npc|bc_map;
+ end;
+OnTimer15000:
+ announce "Partida irá começar em 15 segundos.",bc_npc|bc_map;
+ end;
+OnTimer20000:
+ announce "Partida irá começar em 10 segundos.",bc_npc|bc_map;
+ end;
+OnTimer25000:
+ announce "Partida irá começar em 5 segundos.",bc_npc|bc_map;
+ end;
+OnTimer30000:
+ announce "A partida começou!",bc_npc|bc_map;
+ stopnpctimer;
+ donpcevent "TimerMatch::OnStartMatch";
+ pvpon "ball2";
+ end;
+}
+
+
+ball2,0,0,0	script	TimerMatch	-1,{
+
+OnStartMatch:
+ stopnpctimer; // normally pointless, but seeing the consequences of a npc timer, we won't take a chance.
+ initnpctimer;
+ set $@state_match,3;
+ end;
+OnTimer180000:
+ mapannounce "ball2", "Intervalo! Número de Gols: "+$@score_blue_match+" (Azul) / "+$@score_red_match+" (Vermelho)",bc_map;
+ end;
+OnTimer360000:
+ mapannounce "ball2", "A partida acabou! Placar terminou com: "+$@score_blue_match+" (Azul) / "+$@score_red_match+" (Vermelho)",bc_map;
+ set $@state_match,4;
+ pvpoff "ball2";
+ end;
+
+OnTimer362000:
+ if ($@score_blue_match<$@score_red_match)
+  mapannounce "ball2", "Parabéns para o time Vermelho!",bc_map;
+ else if ($@score_blue_match>$@score_red_match)
+  mapannounce "ball2", "Parabéns para o time Azul!",bc_map;
+ else mapannounce "ball2", "É um empate!",bc_map;
+ donpcevent "Ball::OnReturntomiddle";
+ end;
+
+OnTimer420000:
+ mapwarp "ball2","quiz_02",350,374;
+ set $@state_match,0;
+ set $@blueteamID, 0;
+ set $@redteamID, 0;
+ set $@redconfirmation, 0;
+ set $@blueconfirmation, 0;
+ set $@teampossessingballID, 0;
+ end;
+}
+
+
+ball2,0,0,0	script	TimerMatchcancellation	-1,{
+
+OnMatchcancellation:
+ set $@state_match, 4;
+ mapannounce "ball2", "Placar está em: "+$@score_blue_match+" (Azul) / "+$@score_red_match+" (Vermelho)",bc_map;
+ mapannounce "ball2", "A partida foi cancelada por causa do time ou pedido do treinador!",bc_map;
+ donpcevent "Ball::OnReturntomiddle";
+ stopnpctimer;
+ initnpctimer;
+ end;
+
+OnTimer4000:
+ stopnpctimer;
+ mapwarp "ball2","quiz_02",350,374;
+ set $@state_match,0;
+ end;
+}
+
+
+ball2,60,56,4	script	Ball	1002,{
+
+// Kicking the ball allows it to move from many squares,
+// however its location is determined square by square.
+// The ball draws its course by moving forward from a square every 150 ms.
+// Every time it lands on a square it makes some tests to determine if a goal has been made,
+// if it came out of the field, etc.
+// If that is the case it returns to its place on its own (middle of the field, corners, etc.)
+
+ if ($@state_match!=3) {
+  // If there are no matches in progress ( hasn't started yet, just finished, etc.)
+  npctalk "Sem partidas! Não se aproxime!";
+  end;
+ } 
+
+ if ($@destinationType>0) {
+  end;
+ }
+
+ // If the player isn't in one of the 2 subscribed teams :
+ if ((getcharid(1) == 0) || ((getcharid(1) != $@redteamID)  && (getcharid(1) != $@blueteamID))) {
+  npctalk "Um trapaceiro! Cai fora "+strcharinfo(0)+" !";
+  warp "quiz_02",350,374;
+  end;
+ }
+
+ set $@Activeplayers$, strcharinfo(0);
+ set $@ActiveteamID, getcharid(1);
+
+ // Player and ball coordinates at the time of the shot
+ getmapxy $@mapname$,$@mapxNPC,$@mapyNPC,1;
+ getmapxy $@mapname$,$@mapxPC,$@mapyPC,0;
+
+ // verification of the player's distance / ball : the player must be 1 square from the ball.
+ if (distance($@mapxNPC,$@mapyNPC,$@mapxPC,$@mapyPC)>2) {
+  dispbottom "Você não pode chutar o poring a essa distancia.";
+  end;
+ }
+
+ // Watch out for the position of the stopnpctimer, some tests must be made beforehand (has the player really hit the ball?)
+ stopnpctimer;
+
+ specialeffect 26;
+ specialeffect 44;
+ npcspeed 98;
+
+ // Research of the distance the ball will travel
+ // (still for now)
+ set $@distance,4;
+
+ // Research of the position of the ball X
+ if ($@mapxPC<$@mapxNPC) set $@movementX, 1;
+ else if ($@mapxPC>$@mapxNPC) set $@movementX, -1;
+ else set $@movementX, 0;
+
+ // Research of the position of the ball Y
+ if ($@mapyPC<$@mapyNPC) set $@movementY, 1;
+ else if ($@mapyPC>$@mapyNPC) set $@movementY, -1;
+ else set $@movementY, 0;
+
+ // If the ball is already out of the field, it cannot be moved further away from the field
+ if ($@isballonfield==1) {
+  if 
+
+((23>=$@mapyNPC+$@movementY)||($@mapyNPC+$@movementY>=89)||(12>=$@mapxNPC+$@movementX)||($@mapxNPC+$@movementX>=108)) end;
+ }
+
+ // Check if the ball is in a team's possession (for example after the ball's been kicked out of the field by a team,
+ // only the other team has the right to give the first hit to the ball)
+ if ($@teampossessingballID != 0) && ($@ActiveteamID != $@teampossessingballID) {
+  dispbottom "Outra pessoa obtém o poring.";
+  end;
+ }
+ else set $@teampossessingballID, 0;
+
+ // start of the ball's movement
+
+ set $@mapxNPC, $@mapxNPC+$@movementX;
+ set $@mapyNPC, $@mapyNPC+$@movementY;
+
+ npcwalkto $@mapxNPC,$@mapyNPC;
+ //npctalk "npcwalkto A "+$@mapxNPC+" "+$@mapyNPC;
+ goto Whereistheball;
+ end;
+
+OnTimer150:
+ stopnpctimer;
+ getmapxy $@mapname$,$@mapxNPC,$@mapyNPC,1;
+ //npctalk "getmapxy "+$@mapxNPC+" "+$@mapyNPC;
+
+ // Research of the direction if the ball already has one
+ if ($@destinationType>0) {
+  switch($@destinationType) {
+   case 0: break;
+   case 1: // Go to the middle of the field
+    set $@destinationX, 60;
+    set $@destinationY, 56;
+    break;
+   case 2: // Go to the North West corner
+    set $@destinationX, 15;
+    set $@destinationY, 86;
+    break;
+   case 3: // Go to the North East corner
+    set $@destinationX, 105;
+    set $@destinationY, 86;
+    break;
+   case 4: // Go to the South West corner
+    set $@destinationX, 15;
+    set $@destinationY, 26;
+    break;
+   case 5: // Go to the South East corner
+    set $@destinationX, 105;
+    set $@destinationY, 26;
+    break;
+   case 6: // Go to the West Goal
+    set $@destinationX, 19;
+    set $@destinationY, 56;
+    break;
+   case 7: // Go to the East Goal
+    set $@destinationX, 101;
+    set $@destinationY, 56;
+    break;
+  }
+
+  // Research of the movement X of the ball to get closer to destination
+  if ($@destinationX<$@mapxNPC) set $@movementX, -1;
+  else if ($@destinationX>$@mapxNPC) set $@movementX, 1;
+  else set $@movementX, 0;
+
+  // Research of the movement Y of the ball to get closer to destination
+  if ($@destinationY<$@mapyNPC) set $@movementY, -1;
+  else if ($@destinationY>$@mapyNPC) set $@movementY, 1;
+  else set $@movementY, 0;
+
+  // Movement of the ball
+  npcwalkto $@mapxNPC+$@movementX,$@mapyNPC+$@movementY;
+  getmapxy $@mapname$,$@mapxNPC,$@mapyNPC,1;
+
+  // if the ball still hasn't reached its destination, restart the timer
+  if (($@mapxNPC==$@destinationX) && ($@mapyNPC==$@destinationY)) set $@destinationType,0;
+  else {
+   stopnpctimer;
+   initnpctimer;
+  }
+  end;
+ } 
+
+ // save the coordinates " before movement " (to delete the players from the minimaps)
+ //set $@mapxNPCold, $@mapxNPC;
+ //set $@mapyNPCold, $@mapyNPC;
+
+ // If the ball doesn't have a precise destination, it continues its previous movement
+ set $@mapxNPC, $@mapxNPC+$@movementX;
+ set $@mapyNPC, $@mapyNPC+$@movementY;
+
+ npcwalkto $@mapxNPC,$@mapyNPC;
+ //npctalk "npcwalkto B "+$@mapxNPC+" "+$@mapyNPC;
+
+ // Update the movement of the Poring on the minimap
+
+ // for every player on the map
+  // affects rid with a thing like : getcharid(3)
+  //attachrid($@thingmabob_rid);
+  // delete old save point
+  // draw new save point
+
+ goto Whereistheball;
+ end;
+
+OnReturntomiddle:
+ set $@destinationType, 1;
+ stopnpctimer;
+ initnpctimer;
+ end;
+
+Whereistheball:
+ // Note :
+ // the command "getmapxy $@mapname$,$@mapxNPC,$@mapyNPC,1;" previously used here
+ // wasn't allowing enough time for the ball to move, and often gave its coordinated to the movement
+ // so instead I update the coordinates of the ball manually when it is being moved. This means that we work with
+ // the " supposed " coordinates of the ball.
+ // If the supposed coordinates ever didn't fit with the real coordinates, there would be a need to think
+ // a way to give the ball the time to move, before doing the getmapxy.
+
+ //If the ball was out, test if it came back on the field
+ if ($@isballonfield==1) {
+  if (((23<$@mapyNPC)&&($@mapyNPC<89))&&((12<$@mapxNPC)&&($@mapxNPC<108))) {
+   mapannounce "ball2", "O poring voltou para o campo.",bc_blue;
+   set $@isballonfield,0;
+  }
+
+ } else {
+
+  if ($@mapxNPC>=108) {
+  // T h e    b a l l    i s    o n    t h e    e a s t    s i d e
+
+   // Check if we are in the right-side goal
+   if ((53<=$@mapyNPC)&&($@mapyNPC<=59)) {
+
+    mapannounce "ball2", " "+$@Activeplayers$+" fez um Gol para o time Azul!",bc_blue;
+    npctalk "GOOOL! Irei retornar para o meio do campo!";
+    set $@score_blue_match, $@score_blue_match+1;
+    set $@destinationType, 1;
+    set $@teampossessingballID, $@redteamID;
+    stopnpctimer;
+    initnpctimer;
+    end;
+   }
+   // if we are not in the goal,
+   mapannounce "ball2",$@Activeplayers$+" chutou o poring para fora do campo!",0xFF0000;
+   //set isballonfield,1;
+
+   if ($@ActiveteamID==$@redteamID) {
+    // If the ball gets kicked by a player from the defending team, send the ball in the right 
+
+corner :
+    if ($@mapyNPC<=56) {
+     npctalk "Fora do campo! Estou indo para o escanteio.";
+     set $@destinationType, 5; // Destination South East
+    } else {
+     npctalk "Fora do campo! Estou indo para o escanteio.";
+     set $@destinationType, 3; // Destination North West
+    }
+    // It's the blue team (attackers) that now possess the ball:
+    set $@teampossessingballID, $@blueteamID;
+
+   } else if ($@ActiveteamID==$@blueteamID) {
+    // If the ball gets kicked by a player from the attacking team, send the ball in front of the goal
+    npctalk "Fora do campo! Tiro de meta para o time vermelho.";
+    set $@destinationType, 7; // Destination East Goal
+
+    // It's the red team (defenders) that now possess the ball:
+    set $@teampossessingballID, $@redteamID;
+   } else end;
+   stopnpctimer;
+   initnpctimer;
+   end;
+  } else if ($@mapxNPC<=12) {
+   // T h e    b a l l    i s    o n    t h e    w e s t    s i d e
+
+   // Check if we are in the left-side goal
+   if ((53<=$@mapyNPC)&&($@mapyNPC<=59)) {
+
+    mapannounce "ball2", " "+$@Activeplayers$+" fez um Gol para o time vermelho!",bc_blue;
+    npctalk "GOOOL! Irei retornar para o meio do campo. ";
+    set $@score_red_match, $@score_red_match+1;
+    set $@destinationType, 1; // Destination middle of the field
+    set $@teampossessingballID, $@blueteamID;
+    stopnpctimer;
+    initnpctimer;
+    end;
+   }
+
+   mapannounce "ball2", " "+$@Activeplayers$+" chutou o poring para fora do campo!",0xFF0000;
+   //set isballonfield,1;
+   if ($@ActiveteamID==$@blueteamID) {
+    // If the ball gets kicked by a player from the defending team, send the ball in the right corner:
+    if ($@mapyNPC<=56) {
+     npctalk "Fora do campo! Estou indo para o escanteio.";
+     set $@destinationType, 4; // Destination South East
+    } else {
+     npctalk "Fora do campo! Estou indo para o escanteio.";
+     set $@destinationType, 2; // Destination North West
+    }
+    // It's the red team (attackers) that now possess the ball:
+    set $@teampossessingballID, $@redteamID;
+
+   } else if ($@ActiveteamID==$@redteamID) {
+    // If the ball gets kicked by a player from the attacking team, send the ball in front of the goal
+    npctalk "Fora do campo! Tiro de meta para o time Azul.";
+    set $@destinationType, 6; // Destination West Goal
+    // It's the blue team (defenders) that now possess the ball:
+    set $@teampossessingballID, $@blueteamID;
+   } else end;
+   stopnpctimer;
+   initnpctimer;
+   end;
+  } else if (($@mapyNPC>=89)||($@mapyNPC<=23)) {
+   // T h e    b a l l    i s    o n    ( e i t h e r    N o r t h    o r    S o u t h    s i d e )
+
+   mapannounce "ball2", " "+$@Activeplayers$+" chutou o poring para fora do campo!",0xFF0000;
+
+   set $@isballonfield,1;
+   if ($@ActiveteamID==$@redteamID) {
+    set $@teampossessingballID, $@blueteamID;
+    npctalk "Poring para o Time Azul.";
+   } else if ($@ActiveteamID==$@blueteamID) {
+    set $@teampossessingballID, $@redteamID;
+    npctalk "Poring para o Time Vermelho.";
+   }
+   end;
+  }
+ }
+
+ // Preparation for the next movement
+ set $@distance,$@distance-1;
+ if ($@distance>0) {
+  stopnpctimer;
+  initnpctimer;
+ }
+ end;
+}
+
+
+// *******************************************************************
+//                         Others                 NPCs
+// *******************************************************************
+
+ball2,108,52,2	script	Red Flag#fred1	722,{
+ end;
+}
+
+ball2,108,60,2	script	Red Flag#fred2	722,{
+ end;
+}
+
+ball2,12,52,6	script	Blue Flag#fblue1	722,{
+ end;
+}
+
+ball2,12,60,6	script	Blue Flag#fblue2	722,{
+ end;
+}
+
+
+ball2,60,17,8	script	Field Assistant	913,{
+
+ mes "[Assistente de Campo]";
+ mes "Oi, o que você quer?";
+ next;
+ if (getgmlevel()>79) {
+  switch(select("Sair","Cancelar","Cancelar o jogo","Dar ao time vermelho","Dar ponto ao time azul.","Colocar a bola no centro de novo.")) {
+   case 1:
+    goto OnLeave;
+    break;
+   case 2: 
+    break;
+   case 3:
+    if ($@state_match == 3) {
+     set $@blueteamID, 0;
+     set $@redteamID, 0;
+     set $@redconfirmation, 0;
+     set $@blueconfirmation, 0;
+     set $@state_match, 0;
+     set $@isballonfield, 0;
+     set $@teampossessingballID, 0;
+     donpcevent "TimerMatchcancellation::OnMatchcancellation";
+    } else mes "Nenhum jogo acontecendo.";
+    break;
+   case 4:
+    if ($@state_match == 3) {
+     mapannounce "ball2", " "+strcharinfo(0)+ " has added a point for the Red Team!",bc_blue;
+     set $@score_match_rouge, $@score_match_rouge+1;
+    } else mes "Nenhum jogo acontecendo.";
+    break; 
+   case 5:
+    if ($@state_match == 3) {
+     mapannounce "ball2", " "+strcharinfo(0)+ " has added a point for the Blue Team!",bc_blue;
+     set $@score_blue_match, $@score_blue_match+1;
+    } else mes "Nenhum jogo acontecendo.";
+    break;
+   case 6:
+    mes "Continuar..";    
+    break;     
+  }
+
+ } else {
+
+  switch(select("Sair","Cancelar")) {
+   case 1:
+    goto OnLeave;
+    break;
+   case 2: 
+    break;
+  }
+ }
+ close;
+
+OnLeave:
+ warp "quiz_02",350,374;
+ close;
+
+}	
+
+
+// map football field
+ball2	mapflag	noicewall
+//ball2	mapflag	pvp
+ball2	mapflag	pvp_noguild
+ball2	mapflag	nomemo
+ball2	mapflag	noteleport
+ball2	mapflag	nowarp
+ball2	mapflag	nosave	SavePoint
+ball2	mapflag	nopenalty
+ball2	mapflag	nobranch
+ball2	mapflag	noexp
+
+// map for team constitution
+quiz_02	mapflag	noskill
+quiz_02	mapflag	nomemo
+quiz_02	mapflag	nobranch
+quiz_02	mapflag	nopenalty
+quiz_02	mapflag	noexp

@@ -1,0 +1,169 @@
+//|==================================================================================|
+//|	      ___           ___           ___           ___           ___            |
+//|	     /\  \         /\  \         /\  \         /|  |         /\  \           |
+//|	    |::\  \       /::\  \       /::\  \       |:|  |        /::\  \          |
+//|	    |:|:\  \     /:/\:\  \     /:/\:\  \      |:|  |       /:/\:\  \         |
+//|	  __|:|\:\  \   /:/  \:\  \   /:/  \:\  \   __|:|  |      /:/ /::\  \        |
+//|	 /::::|_\:\__\ /:/__/ \:\__\ /:/__/ \:\__\ /\ |:|__|____ /:/_/:/\:\__\       |
+//|	 \:\--\  \/__/ \:\  \ /:/  / \:\  \ /:/  / \:\/:::::/__/ \:\/:/  \/__/       |
+//|	  \:\  \        \:\  /:/  /   \:\  /:/  /   \::/__/       \::/__/            |
+//|	   \:\  \        \:\/:/  /     \:\/:/  /     \:\  \        \:\  \            |
+//|	    \:\__\        \::/  /       \::/  /       \:\__\        \:\__\           |
+//|	     \/__/         \/__/         \/__/         \/__/         \/__/           |
+//| ================================================================================ |
+//|   Script Desenvolvido Por Mooka | eAthena | Por Favor, Não Retire Os Créditos.   |
+//| ================================================================================ |
+quiz_02,235,357,5	script	Organizador::3vs3#1	873,{
+
+		if($@duelStatus_3vs3)
+		{
+		mes "[^FFDEADOrganizador^000000]";
+		mes "No momento não posso troca você de lado.";
+		close;
+		}
+	mes "[^FFDEADOrganizador^000000]";
+	mes "Gostaria de ir para o outro lado?";
+	if(select("Sim, por favor.:Não, obrigado.")==1) warp "quiz_02",263,346;
+	close;
+
+OnStart:
+	if(!getcharid(1))
+	{
+	dispbottom "Você deve possuir uma party para participar.";
+	warp "quiz_02",235,346;
+	end;
+	}
+		if(getcharid(1)==getvariableofnpc(.duelPartyID,"3vs3#2"))
+		{
+		dispbottom "Sua Party já está ocupando um chat.";
+		warp "quiz_02",235,346;
+		end;
+		}	
+			if(getwaitingroomstate(0)==1)
+			{
+			set .duelPartyID,getcharid(1);
+			dispbottom "Você tem 1 minuto para chamar sua party.";
+			initnpctimer;
+			setnpctimer 0;
+			} if(getcharid(1)!=.duelPartyID) warp "quiz_02",235,346;
+	set @DuelType,3;
+	set $@3vs3MemberName_1$[getwaitingroomstate(0)-1],strcharinfo(0);
+	if(getwaitingroomstate(0)!=1) end;
+	set $@Duel_3vs3_1,1;
+	initnpctimer;
+	setnpctimer 0;
+	delwaitingroom;
+	Areaannounce "quiz_02",222,391,262,357,"[Organizador] Time 1 está pronto!",bc_map,0xFFDEAD;
+	setcell "quiz_02",234,367,239,362,0,0;
+	for(set .@i,5;.@i>=0;set .@i,.@i-1) warpchar "quiz_02",rand(234,239),rand(367,362),getcharid(0,$@3vs3MemberName_1$[.@i]);
+		if($@Duel_3vs3_2)
+		{
+		callfunc("FunctionDuel",1,222,391,262,357,"3vs3");
+		setcell "quiz_02",234,367,239,362,0,1;
+		setcell "quiz_02",260,367,265,362,0,1;
+		set $@duelStatus_3vs3,1;
+		set $@Duel_3vs3_1,0;
+		set $@Duel_3vs3_2,0;
+		set $@3vs3Count1,0;
+		set $@3vs3Count2,0;
+		stopnpctimer;
+		} end;
+	
+OnTimer60000:
+	if(getwaitingroomstate(0)) Areaannounce "quiz_02",222,391,262,357,"[Organizador] Inscrição do Duelo Time 1 liberado.",bc_map,0xFFDEAD;
+	warpwaitingpc "quiz_02",31,346,3;
+	end;
+
+OnChatInit:
+OnInit:
+waitingroom "3vs3 - Time 1",3,"3vs3#1::OnStart",1;
+setcell "quiz_02",224,357,275,334,4,1;
+}
+
+
+
+quiz_02,263,357,5	script	Organizador::3vs3#2	873,{
+
+		if($@duelStatus_3vs3)
+		{
+		mes "[^FFDEADOrganizador^000000]";
+		mes "No momento não posso troca você de lado.";
+		close;
+		}
+	mes "[^FFDEADOrganizador^000000]";
+	mes "Gostaria de ir para o outro lado?";
+	if(select("Sim, por favor.:Não, obrigado.")==1) warp "quiz_02",235,346;
+	close;
+
+OnStart:
+	if(!getcharid(1))
+	{
+	dispbottom "Você deve possuir uma party para participar.";
+	warp "quiz_02",263,346;
+	end;
+	}
+		if(getcharid(1)==getvariableofnpc(.duelPartyID,"3vs3#1"))
+		{
+		dispbottom "Sua Party já está ocupando um chat.";
+		warp "quiz_02",263,346;
+		end;
+		}
+			if(getwaitingroomstate(0)==1)
+			{
+			set .duelPartyID,getcharid(1);
+			dispbottom "Você tem 1 minuto para sua party entrar.";
+			initnpctimer;
+			setnpctimer 0;
+			} if(getcharid(1)!=.duelPartyID) warp "quiz_02",263,346;
+	set @DuelType,3;
+	set $@3vs3MemberName_2$[getwaitingroomstate(0)-1],strcharinfo(0);
+	if(getwaitingroomstate(0)!=1) end;
+	set $@Duel_3vs3_2,1;
+	initnpctimer;
+	setnpctimer 0;
+	delwaitingroom;
+	setcell "quiz_02",260,367,265,362,0,0;
+	Areaannounce "quiz_02",222,391,262,357,"[Organizador] Time 2 está pronto!",bc_map,0xFFDEAD;
+	for(set .@i,5;.@i>=0;set .@i,.@i-1) warpchar "quiz_02",rand(260,265),rand(367,362),getcharid(0,$@3vs3MemberName_2$[.@i]);
+		if($@Duel_3vs3_1)
+		{
+		callfunc("FunctionDuel",1,222,391,262,357,"3vs3");
+		setcell "quiz_02",234,367,239,362,0,1;
+		setcell "quiz_02",260,367,265,362,0,1;
+		set $@duelStatus_3vs3,1;
+		set $@Duel_3vs3_1,0;
+		set $@Duel_3vs3_2,0;
+		set $@3vs3Count1,0;
+		set $@3vs3Count2,0;
+		stopnpctimer;
+		} end;
+
+OnTimer60000:
+	if(getwaitingroomstate(0)) Areaannounce "quiz_02",222,391,262,357,"[Organizador] Inscrição do Duelo Time 2 liberado.",bc_map,0xFFDEAD;
+	warpwaitingpc "quiz_02",161,348,3;
+	end;
+
+OnInit:
+OnChatInit:
+waitingroom "3vs3 - Time 2",1,"3vs3#2::OnStart",1;
+}
+
+quiz_02,235,346,0	script	Touch_3vs3#1	-1,13,13,{
+
+OnTouch:
+percentheal 100,100;
+sc_start 30,120000,10;
+sc_start 32,120000,10;
+skilleffect 34,0;
+skilleffect 29,0;
+}
+
+quiz_02,263,346,0	script	Touch_3vs3#2	-1,13,13,{
+
+OnTouch:
+percentheal 100,100;
+sc_start 30,120000,10;
+sc_start 32,120000,10;
+skilleffect 34,0;
+skilleffect 29,0;
+}
